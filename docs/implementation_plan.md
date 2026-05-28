@@ -1,8 +1,8 @@
 # Chronological Implementation Plan
 
-Latest plan date: 2026-05-26
+Latest plan date: 2026-05-27
 
-This plan is chronological by dependency order, not by paper publication date. The bibliography in `docs/research_grounding_and_plan.md` is the source of truth for paper metadata and inclusion status. The landscape wiki in `docs/qcfd_landscape_map.md` is the source of truth for branch-level relationships; `docs/research_mind_map.html` is an optional interactive explorer.
+This plan is chronological by dependency order, not by paper publication date. The bibliography in `docs/research_grounding_and_plan.md` is the source of truth for paper metadata and inclusion status. The structured graph in `docs/research_landscape_data.js` is the source of truth for canonical IDs, aliases, citation keys, reading statuses, multi-label tags, and paper-to-paper relations. The landscape wiki in `docs/qcfd_landscape_map.md` is the source of truth for branch-level relationships; `docs/research_mind_map.html` is the local interactive explorer.
 
 ## Stage 0: Literature Governance And Lean Classical Baseline
 
@@ -17,6 +17,13 @@ Required papers:
 - `QRE5` Meng: end-to-end rapidly-distorted-turbulence route with resource accounting.
 - `SURV1`, `SURV2`, `SURV3`: orientation only, not implementation authority.
 
+Reading-status rule:
+
+- Start from the `Minimum Reading Path` in `docs/research_mind_map.html`.
+- Treat `Read First` and `Read With` papers as decision inputs.
+- Treat `Read If Building` papers as route-specific work, not general onboarding.
+- Treat `Covered By Newer`, `Reference Only`, and `Watch` papers as dimmed unless a route card explicitly needs them.
+
 Implementation scope:
 
 - Keep the existing D1Q3 and D2Q9 baselines.
@@ -26,7 +33,8 @@ Implementation scope:
 Acceptance gate:
 
 - Classical solver and diagnostics tests pass.
-- Any proposed task cites bibliography IDs and states whether it is bibliography work, route-card work, operator work, readout work, or resource-estimation work.
+- Any proposed task cites canonical bibliography IDs or short aliases and states whether it is bibliography work, route-card work, operator work, readout work, or resource-estimation work.
+- Route-card work preserves reading status, tags, and `coveredBy` / `dependsOn` / `readBefore` metadata when it introduces or reclassifies a paper.
 
 ## Stage 1: Benchmark And Observable Cards
 

@@ -1,0 +1,132 @@
+@article{59f8f0e0d9c3753ee367212252a763e78d4b5f61,
+title = {Modeling noise in quantum computing of scalar convection},
+year = {2025},
+url = {https://www.semanticscholar.org/paper/59f8f0e0d9c3753ee367212252a763e78d4b5f61},
+abstract = {Quantum computing holds potential for accelerating the simulation of fluid dynamics. However, hardware noise in the noisy intermediate-scale quantum era significantly distorts simulation accuracy. Although error magnitudes are frequently quantified, the specific physical effects of quantum noise on flow simulation results remain largely uncharacterized. We investigate the influence of gate noise on the quantum simulation of one-dimensional scalar convection. By employing a quantum spectral algorithm where ideal time advancement affects only Fourier phases, we isolate and analyze noise-induced artifacts in spectral magnitudes. We derive a theoretical transition matrix based on Hamming distances between computational basis states to predict spectral decay, and then validate this model against density-matrix simulations and experiments on a superconducting quantum processor. Furthermore, using data-driven sparse regression, we demonstrate that quantum noise manifests in the effective partial differential equation primarily as artificial diffusion and nonlinear source terms. These findings suggest that quantum errors can be modeled as deterministic physical terms rather than purely stochastic perturbations.},
+author = {Jiahua Yang and Zhen Lu and Yue Yang},
+journal = {Acta Mechanica Sinica},
+volume = {null},
+pages = {null},
+doi = {10.1007/s10409-026-51281-x},
+arxivid = {2512.22559},
+}
+
+@article{81d257d4555f9f11e6fe37d7b94471a26e457153,
+title = {Resource Implications of Different Encodings for Quantum Computational Fluid Dynamics},
+year = {2026},
+url = {https://www.semanticscholar.org/paper/81d257d4555f9f11e6fe37d7b94471a26e457153},
+abstract = {For quantum algorithms for problems in which the task is to compute an entire field of values, like e.g. computational fluid dynamics (CFD), it is often proposed amplitude encoding w.r.t. multiple qubits; however, the efforts implied by it for initialization and read-out are not addressed. This work is devoted specifically to this issue: It reviews different encoding schemes in quantum computing, discussing their computational costs for initialization and read-out as well as resulting aspects for their usage via minimal examples. The considerations in previous literature on the required computational resources for amplitude encoding w.r.t. multiple qubits are extended in the presented quantification by explicitly deducing the circuit depth that results for the decomposed initialization procedure of V. V. Shende et al. [1, 2] and deriving an upper bound for the necessary number of executions of a quantum algorithm to extract the encoded values with a specific accuracy. For these two results, an empirical verification via the means provided by IBM's quantum computing simulation framework $\textit{Qiskit}$ [3] is given. In the framework of the study on the required number of runs to achieve a desired accuracy, it is however found that the derived upper bound, scaling like $ {{\tilde{n}}^2} ~ {\ln( {\tilde{n}} )} $ with the number of encoded values $ {\tilde{n}} $, is too conservative to be used for precise estimations. Therefore, a corresponding study of the required runs for the reference distribution of equal probabilities for all basis states is done in particular, which suggests $ {\tilde{n}} ~ { \ln( {\tilde{n}} ) } $ as an empirical scaling law. Since the view regarding CFD applications is taken here, it is presented in particular that the insights from this work lead to a new encoding approach, which is proposed specifically for a quantum algorithm for the lattice Boltzmann method.},
+author = {Hans A. Kosel and Roland Ewert and Jan W. Delfs},
+arxivid = {2604.05577},
+}
+
+@article{596dee680b0fc19f3be74f163c5dced7ab9f0789,
+title = {Quantum Lattice Boltzmann Method based on linear equilibrium distribution functions},
+year = {2026},
+url = {https://www.semanticscholar.org/paper/596dee680b0fc19f3be74f163c5dced7ab9f0789},
+abstract = {
+ In this paper, we propose a complete formulation of the Lattice Boltzmann Method adapted for quantum computing. The classical collision, based on linear equilibrium distribution functions and streaming steps, are reformulated as linear algebraic operations. The inherently non-unitary collision operator is decomposed using Singular Value Decomposition and the Linear Combination of Unitaries technique. Bounce-back boundary conditions are incorporated directly into the collision matrix, while the streaming step is realized through conditional unitary shift operations on spatial registers, controlled by lattice velocity indices encoded in the distribution function register. This formulation ensures that the streaming step remains purely unitary. The resulting quantum circuit is implemented using Qiskit and validated against Couette flow and Poiseuille flow benchmarks. The simulation accurately reproduces the expected velocity profile, with relative errors below
+ 
+ 
+ 
+ 1
+ 
+ 
+ 0
+ 
+ 
+ −
+ 4
+ 
+ 
+ 
+ 
+ 
+ . This work establishes a foundational framework for quantum fluid solvers and provides a pathway toward quantum computational fluid dynamics.
+},
+author = {Zhengliang Liu and B. John and David R. Emerson},
+journal = {Frontiers in Mechanical Engineering},
+volume = {null},
+pages = {null},
+doi = {10.3389/fmech.2025.1717775},
+}
+
+@article{3e346809ad8d0fe5e1d9f247cc8444f7633d0da1,
+title = {Towards Quantum Machine Learning of Lattice Boltzmann Collision Operators for Fluid Dynamic Simulations},
+year = {2025},
+url = {https://www.semanticscholar.org/paper/3e346809ad8d0fe5e1d9f247cc8444f7633d0da1},
+abstract = {We attempt the use of a unitary operator to approximate the lattice Boltzmann collision operator. We use a modified amplitude encoding to bypass the renormalization that would have required classical processing at every step (thus eroding any quantum advantage to be had). We describe the hard-wiring of the lattice Boltzmann symmetries into the quantum circuit and show that, for the specific case of the cavity flow, approximating the nonlinear system is limited to low velocities. These findings may help us understand better the possibilities of nonlinear simulations on a quantum computer, and also pave the way for a discussion on how quantum machine learning might be harnessed to address more complex problems.},
+author = {Wael Itani and K. Sreenivasan},
+arxivid = {2512.23991},
+}
+
+@article{7d3b52f9cc8bd0b42337968813cb072b25156887,
+title = {Quantum computing of the nonlinear Schr\"odinger equation via measurement-induced potential reconstruction},
+year = {2026},
+url = {https://www.semanticscholar.org/paper/7d3b52f9cc8bd0b42337968813cb072b25156887},
+abstract = {The nonlinear Schr\"odinger equation (NLSE) is a fundamental model that describes diverse complex phenomena in nature. However, simulating the NLSE on a quantum computer is inherently challenging due to the presence of the nonlinear term. We propose a hybrid quantum-classical framework for simulating the NLSE based on the split-step Fourier method. During the linear propagation step, we apply the kinetic evolution operator to generate an intermediate quantum state. Subsequently, the Hadamard test is employed to measure the Fourier components of low-wavenumber modes, enabling the efficient reconstruction of nonlinear potentials. The phase transformation corresponding to the reconstructed potential is then implemented via a quantum circuit using the phase kickback technique. To validate the efficacy of the proposed algorithm, we numerically simulate the evolution of a Gaussian wave packet, a soliton wave, and the wake flow past a cylinder. The simulation results demonstrate excellent agreement with the corresponding classical solutions. This work provide a concrete basis for analyzing accuracy-cost trade-offs in quantum-classical simulations of nonlinear dispersive wave dynamics.},
+author = {Kaiwen Weng and Zhaoyuan Meng and Guohui Hu},
+arxivid = {2601.19184},
+}
+
+@article{efd5a66b716c9e203e7e4ee9562bf99be7202490,
+title = {Quantum Homotopy Algorithm for Solving Nonlinear PDEs and Flow Problems},
+year = {2025},
+url = {https://www.semanticscholar.org/paper/efd5a66b716c9e203e7e4ee9562bf99be7202490},
+abstract = {Quantum algorithms to integrate nonlinear PDEs governing flow problems are challenging to discover but critical to enhancing the practical usefulness of quantum computing. We present here a near-optimal, robust, and end-to-end quantum algorithm to solve time-dependent, dissipative, and nonlinear PDEs. We embed the PDEs in a truncated, high dimensional linear space on the basis of quantum homotopy analysis. The linearized system is discretized and integrated using finite-difference methods that use a compact quantum algorithm. The present approach can adapt its input to the nature of nonlinearity and underlying physics. The complexity estimates improve existing approaches in terms of scaling of matrix operator norms, condition number, simulation time, and accuracy. We provide a general embedding strategy, bounds on stability criteria, accuracy, gate counts and query complexity. A physically motivated measure of nonlinearity is connected to a parameter that is similar to the flow Reynolds number $Re_{\textrm{H}}$, whose inverse marks the allowed integration window, for given accuracy and complexity. We illustrate the embedding scheme with numerical simulations of a one-dimensional Burgers problem. This work shows the potential of the hybrid quantum algorithm for simulating practical and nonlinear phenomena on near-term and fault-tolerant quantum devices.},
+author = {Sachin S. Bharadwaj and B. Nadiga and S. Eidenbenz and K. Sreenivasan},
+journal = {ArXiv},
+volume = {abs/2512.21033},
+pages = {null},
+doi = {10.48550/arXiv.2512.21033},
+arxivid = {2512.21033},
+}
+
+@article{c3520485d5970edde42dc0eeb3453233d5118bd5,
+title = {Minimizing entanglement entropy for enhanced quantum state preparation},
+year = {2025},
+url = {https://www.semanticscholar.org/paper/c3520485d5970edde42dc0eeb3453233d5118bd5},
+abstract = {Quantum state preparation is an important subroutine in many quantum algorithms. The goal is to encode classical information directly to the quantum state so that it is possible to leverage quantum algorithms for data processing. However, quantum state preparation of arbitrary states scales exponentially in the number of two-qubit gates, and this makes quantum state preparation a very difficult task on quantum computers, especially on near-term noisy devices. This represents a major challenge in achieving quantum advantage. We present and analyze a novel two-step state preparation method where we first minimize the entanglement entropy of the target quantum state, thus transforming the state to one that is easier to prepare. The state with reduced entanglement entropy is then represented as a matrix product state, resulting in a high accuracy preparation of the target state. Our method is suitable for NISQ devices and we give rigorous lower bounds on the accuracy of the prepared state in terms of the entanglement entropy. We benchmark our method with 2D normal distribution and Ricker wavelet states with 6--20 qubits.},
+author = {Oskari Kerppo and W. Steadman and Ossi Niemimaki and Valtteri Lahtinen},
+arxivid = {2507.22562},
+}
+
+@article{4d3a3de13c2b05e83172873916a1db9537f73f73,
+title = {Compact quantum algorithms for time-dependent differential equations},
+year = {2024},
+url = {https://www.semanticscholar.org/paper/4d3a3de13c2b05e83172873916a1db9537f73f73},
+abstract = {Many claims of computational advantages have been made for quantum computing over classical but they have not been demonstrated for practical problems. Here, we present algorithms for solving time-dependent PDEs, with particular reference to fluid equations. We build on an idea based on a linear combination of unitaries to simulate nonunitary, non-Hermitian quantum systems, and generate hybrid quantum-classical algorithms that efficiently perform iterative matrix-vector multiplication and matrix inversion operations. These algorithms are end-to-end, with relatively low-depth quantum circuits that demonstrate quantum advantage, with the best-case asymptotic complexities, which we show are near optimal. We demonstrate the performance of the algorithms by conducting: (a) fully gate level, state-vector simulations using an in-house, high-performance, quantum simulator called ; (b) experiments on a real quantum device; and (c) noisy simulations using . We also provide device specifications such as error rates (noise) and state sampling (measurement) to accurately perform convergent flow simulations on noisy devices. The results offer evidence that the proposed algorithm is amenable for use on near-term quantum devices.
+ 
+ 
+ 
+ 
+ Published by the American Physical Society
+ 2025
+ 
+ 
+},
+author = {Sachin S. Bharadwaj and K. Sreenivasan},
+journal = {Physical Review Research},
+volume = {null},
+pages = {null},
+doi = {10.1103/PhysRevResearch.7.023262},
+arxivid = {2405.09767},
+}
+
+@article{dff73094aa019434036a57d4a494dcf8fd31d269,
+title = {Time-marching representation based quantum algorithms for the Lattice Boltzmann model of the advection-diffusion equation},
+year = {2026},
+url = {https://www.semanticscholar.org/paper/dff73094aa019434036a57d4a494dcf8fd31d269},
+abstract = {This article introduces a novel framework for developing quantum algorithms for the Lattice Boltzmann Method (LBM) applied to the advection-diffusion equation. We formulate the collision-streaming evolution of the LBM as a compact time-marching scheme and rigorously establish its stability under low Mach number conditions. This unified formulation eliminates the need for classical measurement at each time step, enabling a systematic and fully quantum implementation. Building upon this representation, we investigate two distinct quantum algorithmic approaches. The first is a time-marching quantum algorithm realized through sequential evolution operators, for which we provide a detailed implementation-including block-encoding and dilating unitarization-along with a full complexity analysis. The second employs a quantum linear systems algorithm, which encodes the entire time evolution into a single global linear system. We demonstrate that both methods achieve comparable asymptotic time complexities. The proposed algorithms are validated through numerical simulations of benchmark problems in one and two dimensions. This work provides a systematic, measurement-free pathway for the quantum simulation of advection-diffusion processes via the lattice Boltzmann paradigm.},
+author = {Yuan He and Yuanhong Yu and Yue Yu},
+arxivid = {2602.09799},
+}
+
+@article{417d99e81e46a3225a1177923d3b8e61e1f9573d,
+title = {Quantum algorithm for solving nonlinear differential equations based on physics-informed effective Hamiltonians},
+year = {2025},
+url = {https://www.semanticscholar.org/paper/417d99e81e46a3225a1177923d3b8e61e1f9573d},
+abstract = {We propose a distinct approach to solving linear and nonlinear differential equations (DEs) on quantum computers by encoding the problem into ground states of effective Hamiltonian operators. Our algorithm relies on constructing such operators in the Chebyshev space, where an effective Hamiltonian is a sum of global differential and data constraints. Once the effective Hamiltonian is formed, solutions of differential equations can be obtained using the ground state preparation techniques (e.g. imaginary-time evolution and quantum singular value transformation), bypassing variational search. Unlike approaches based on discrete grids, the algorithm enables evaluation of solutions beyond fixed grid points and implements constraints in the physics-informed way. Our proposal inherits the best traits from quantum machine learning-based DE solving (compact basis representation, automatic differentiation, nonlinearity) and quantum linear algebra-based approaches (fine-grid encoding, provable speed-up for state preparation), offering a robust strategy for quantum scientific computing in the early fault-tolerant era.},
+author = {Hsin‐Yu Wu and Annie E. Paine and E. Philip and A. A. Gentile and O. Kyriienko},
+arxivid = {2504.13174},
+}

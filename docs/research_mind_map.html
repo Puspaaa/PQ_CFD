@@ -1,0 +1,2577 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QCFD Reading Landscape</title>
+  <script src="./research_landscape_data.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --ink: #18202f;
+      --muted: #637083;
+      --line: #d8dee8;
+      --line-strong: #a9b4c4;
+      --accent: #0f6b66;
+      --accent-soft: #d9eeeb;
+      --route: #223653;
+      --paper: #ffffff;
+      --paper-dim: #e9edf3;
+      --warning: #a53f1a;
+      --covered: #6b7280;
+      --shadow: 0 14px 38px rgba(28, 37, 54, 0.12);
+      --radius: 8px;
+      --sidebar: 330px;
+      --details: 390px;
+      --topbar: 68px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      height: 100vh;
+      display: grid;
+      grid-template-columns: var(--sidebar) minmax(420px, 1fr) var(--details);
+      grid-template-rows: var(--topbar) minmax(0, 1fr);
+    }
+
+    header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      background: #ffffff;
+      z-index: 10;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+      letter-spacing: 0;
+      font-weight: 760;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .metric {
+      min-width: 94px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 7px 10px;
+      background: #fbfcfd;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.2;
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.05;
+    }
+
+    aside,
+    .details {
+      background: var(--panel);
+      overflow: auto;
+      min-height: 0;
+    }
+
+    aside {
+      border-right: 1px solid var(--line);
+      padding: 18px 16px 28px;
+    }
+
+    .details {
+      border-left: 1px solid var(--line);
+      padding: 20px 18px 28px;
+    }
+
+    .section {
+      padding-bottom: 18px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section:last-child {
+      border-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .section h2,
+    .details h2 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      line-height: 1.25;
+      color: #273244;
+      letter-spacing: 0;
+      font-weight: 760;
+    }
+
+    .section summary {
+      cursor: pointer;
+      color: #273244;
+      font-size: 13px;
+      font-weight: 760;
+      margin-bottom: 10px;
+    }
+
+    .paths {
+      display: grid;
+      gap: 8px;
+    }
+
+    .path-button {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fbfcfd;
+      border-radius: var(--radius);
+      color: #263245;
+      text-align: left;
+      padding: 9px 10px;
+      cursor: pointer;
+      display: grid;
+      gap: 2px;
+    }
+
+    .path-button strong {
+      font-size: 13px;
+      line-height: 1.2;
+      font-weight: 740;
+    }
+
+    .path-button span {
+      font-size: 11px;
+      line-height: 1.25;
+      color: var(--muted);
+    }
+
+    .path-button.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    .view-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .view-button {
+      border: 1px solid var(--line);
+      background: #fbfcfd;
+      border-radius: var(--radius);
+      color: #263245;
+      padding: 9px 10px;
+      cursor: pointer;
+      text-align: left;
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .view-button strong {
+      font-size: 12px;
+      line-height: 1.2;
+      font-weight: 760;
+    }
+
+    .view-button span {
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.25;
+    }
+
+    .view-button.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    .control-hidden {
+      display: none;
+    }
+
+    .search {
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      padding: 9px 10px;
+      color: var(--ink);
+      background: #ffffff;
+    }
+
+    .chip-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      background: #fbfcfd;
+      color: #243044;
+      border-radius: 999px;
+      padding: 6px 9px;
+      cursor: pointer;
+      font-size: 11px;
+      line-height: 1;
+      max-width: 100%;
+      white-space: nowrap;
+    }
+
+    .chip.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: #083d39;
+    }
+
+    .chip.status-read-first,
+    .badge.status-read-first {
+      border-color: #b42318;
+      background: #fff1f2;
+      color: #7a2114;
+    }
+
+    .chip.status-read-with,
+    .badge.status-read-with {
+      border-color: #8c5c00;
+      background: #fff7db;
+      color: #63420c;
+    }
+
+    .chip.status-read-if-building,
+    .badge.status-read-if-building {
+      border-color: #0f6b66;
+      background: #d9eeeb;
+      color: #083d39;
+    }
+
+    .chip.status-skim-for-warning,
+    .badge.status-skim-for-warning {
+      border-color: #a53f1a;
+      background: #fff4ed;
+      color: #7c2d12;
+    }
+
+    .chip.status-reference-only,
+    .badge.status-reference-only {
+      border-color: #64748b;
+      background: #f1f5f9;
+      color: #334155;
+    }
+
+    .chip.status-covered-by-newer,
+    .badge.status-covered-by-newer {
+      border-color: #6b7280;
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .chip.status-watch,
+    .badge.status-watch {
+      border-color: #7c3aed;
+      background: #f5f3ff;
+      color: #4c1d95;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .toggle-row button {
+      border: 1px solid var(--line);
+      background: #fbfcfd;
+      border-radius: var(--radius);
+      padding: 6px 8px;
+      cursor: pointer;
+      color: #253145;
+      min-width: 44px;
+    }
+
+    .toggle-row button.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: #083d39;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      background: #f6f7f9;
+    }
+
+    .canvas-toolbar {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 6;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      max-width: calc(100% - 28px);
+    }
+
+    .toolbar-button {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: var(--radius);
+      padding: 7px 10px;
+      color: #253145;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(28, 37, 54, 0.08);
+    }
+
+    .toolbar-button.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: #083d39;
+    }
+
+    .viewport {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      cursor: grab;
+      position: relative;
+    }
+
+    .viewport.dragging {
+      cursor: grabbing;
+    }
+
+    .stage {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 3300px;
+      height: 3300px;
+      transform-origin: 0 0;
+    }
+
+    .edges {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .edge {
+      fill: none;
+      stroke-linecap: round;
+      opacity: 0.78;
+      transition: opacity 160ms ease, stroke-width 160ms ease;
+    }
+
+    .edge.path {
+      stroke: #0f6b66;
+      stroke-width: 3;
+    }
+
+    .edge.coverage {
+      stroke: #9a3412;
+      stroke-width: 2.4;
+      stroke-dasharray: 7 5;
+      marker-end: url(#arrowCoverage);
+    }
+
+    .edge.dependency {
+      stroke: #64748b;
+      stroke-width: 1.7;
+      stroke-dasharray: 5 6;
+      marker-end: url(#arrowDependency);
+    }
+
+    .edge.read-before {
+      stroke: #2563eb;
+      stroke-width: 1.8;
+      stroke-dasharray: 3 5;
+      marker-end: url(#arrowReadBefore);
+    }
+
+    .edge.dim {
+      opacity: 0.1;
+    }
+
+    .edge.focused {
+      opacity: 1;
+      stroke-width: 4;
+    }
+
+    .edge.hidden {
+      display: none;
+    }
+
+    .route-node,
+    .paper-node {
+      position: absolute;
+      border-radius: var(--radius);
+      transition: opacity 160ms ease, filter 160ms ease, transform 160ms ease, border-color 160ms ease;
+    }
+
+    .route-node {
+      width: var(--node-w);
+      height: var(--node-h);
+      left: var(--node-x);
+      top: var(--node-y);
+      border: 1px solid #c8d1dd;
+      background: rgba(255, 255, 255, 0.5);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+      color: inherit;
+      cursor: pointer;
+      display: block;
+      font: inherit;
+      overflow: hidden;
+      padding: 0;
+      text-align: left;
+      z-index: 1;
+    }
+
+    .route-label {
+      position: absolute;
+      left: 14px;
+      top: 12px;
+      min-width: 150px;
+      max-width: calc(100% - 130px);
+      border-radius: 6px;
+      background: #223653;
+      color: #ffffff;
+      padding: 7px 10px;
+      font-size: 14px;
+      line-height: 1.15;
+      font-weight: 740;
+      box-shadow: 0 10px 24px rgba(34, 54, 83, 0.18);
+    }
+
+    .route-meta {
+      position: absolute;
+      right: 14px;
+      top: 12px;
+      color: #536174;
+      font-size: 11px;
+      line-height: 1.15;
+      padding: 7px 8px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    .route-body {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      top: 54px;
+      display: grid;
+      gap: 7px;
+      color: #37455b;
+      font-size: 12px;
+      line-height: 1.28;
+      max-height: 100px;
+      overflow: hidden;
+    }
+
+    .route-body strong {
+      color: #172033;
+      font-weight: 780;
+    }
+
+    .route-keyline {
+      color: #536174;
+      font-size: 11px;
+      line-height: 1.22;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .route-node-trigger {
+      position: absolute;
+      left: var(--node-x);
+      top: var(--node-y);
+      width: var(--node-w);
+      height: 124px;
+      border: 0;
+      border-radius: var(--radius) var(--radius) 0 0;
+      background: transparent;
+      cursor: pointer;
+      z-index: 4;
+    }
+
+    .route-node-trigger:focus-visible {
+      outline: 3px solid rgba(15, 107, 102, 0.32);
+      outline-offset: 2px;
+    }
+
+    .paper-node {
+      left: var(--node-x);
+      top: var(--node-y);
+      width: 232px;
+      min-height: 150px;
+      border: 1px solid var(--line-strong);
+      background: var(--paper);
+      box-shadow: 0 9px 22px rgba(28, 37, 54, 0.09);
+      color: var(--ink);
+      padding: 10px 11px;
+      cursor: pointer;
+      display: grid;
+      gap: 6px;
+      text-align: left;
+      z-index: 2;
+    }
+
+    .paper-node:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      box-shadow: 0 16px 34px rgba(28, 37, 54, 0.18);
+    }
+
+    .paper-node.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(15, 107, 102, 0.2), 0 18px 42px rgba(28, 37, 54, 0.2);
+      z-index: 5;
+    }
+
+    .paper-node.dim {
+      opacity: 0.38;
+      filter: grayscale(0.55);
+      box-shadow: 0 5px 12px rgba(28, 37, 54, 0.04);
+      background: var(--paper-dim);
+    }
+
+    .paper-node.hidden {
+      display: none;
+    }
+
+    .node-id-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .node-id {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 760;
+      line-height: 1;
+    }
+
+    .node-title {
+      font-size: 15px;
+      line-height: 1.12;
+      font-weight: 800;
+      color: #162032;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .overlap-zone {
+      position: absolute;
+      left: var(--zone-x);
+      top: var(--zone-y);
+      width: var(--zone-w);
+      height: var(--zone-h);
+      border: 1px solid #c8d1dd;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.54);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.62);
+      color: inherit;
+      cursor: pointer;
+      overflow: hidden;
+      z-index: 1;
+      transition: opacity 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+    }
+
+    .overlap-zone.active,
+    .overlap-zone.selected {
+      border-color: var(--accent);
+      background: rgba(217, 238, 235, 0.58);
+    }
+
+    .overlap-zone.selected {
+      box-shadow: 0 0 0 4px rgba(15, 107, 102, 0.16), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+    }
+
+    .overlap-zone.dim {
+      opacity: 0.34;
+    }
+
+    .overlap-zone-trigger {
+      position: absolute;
+      left: var(--zone-x);
+      top: var(--zone-y);
+      width: var(--zone-w);
+      height: 122px;
+      border: 0;
+      border-radius: var(--radius) var(--radius) 0 0;
+      background: transparent;
+      cursor: pointer;
+      z-index: 4;
+    }
+
+    .overlap-zone.trigger-hover {
+      border-color: var(--accent);
+      background: rgba(217, 238, 235, 0.68);
+    }
+
+    .overlap-zone-trigger:focus-visible {
+      outline: 3px solid rgba(15, 107, 102, 0.32);
+      outline-offset: 2px;
+    }
+
+    .overlap-zone.deep {
+      background: rgba(255, 247, 219, 0.62);
+      border-color: #d8b35a;
+    }
+
+    .overlap-zone.outside {
+      background: rgba(241, 245, 249, 0.68);
+    }
+
+    .overlap-label {
+      position: absolute;
+      left: 14px;
+      top: 12px;
+      max-width: calc(100% - 120px);
+      border-radius: 6px;
+      background: #223653;
+      color: #ffffff;
+      padding: 7px 10px;
+      font-size: 14px;
+      line-height: 1.15;
+      font-weight: 760;
+      box-shadow: 0 10px 24px rgba(34, 54, 83, 0.18);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .overlap-meta {
+      position: absolute;
+      right: 14px;
+      top: 12px;
+      color: #536174;
+      font-size: 11px;
+      line-height: 1.15;
+      padding: 7px 8px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    .overlap-body {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      top: 54px;
+      display: grid;
+      gap: 7px;
+      color: #37455b;
+      font-size: 12px;
+      line-height: 1.28;
+      max-height: 70px;
+      overflow: hidden;
+    }
+
+    .atlas-paper-node {
+      width: 174px;
+      min-height: 118px;
+      padding: 8px 9px;
+      gap: 5px;
+      border: 3px solid transparent;
+      background:
+        linear-gradient(var(--status-fill), var(--status-fill)) padding-box,
+        linear-gradient(135deg, var(--year-a), var(--year-b)) border-box;
+    }
+
+    .atlas-paper-node .node-id {
+      font-size: 10px;
+    }
+
+    .atlas-paper-node .node-title {
+      font-size: 13px;
+    }
+
+    .atlas-paper-node .node-capsule {
+      font-size: 12px;
+    }
+
+    .atlas-paper-node .node-badge {
+      max-width: 96px;
+      font-size: 9px;
+      padding: 3px 5px;
+    }
+
+    .atlas-paper-node .node-role {
+      -webkit-line-clamp: 1;
+      font-size: 10px;
+    }
+
+    .atlas-paper-node .node-tag {
+      max-width: 72px;
+      font-size: 9px;
+    }
+
+    .atlas-legend {
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      z-index: 6;
+      width: 270px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 8px 20px rgba(28, 37, 54, 0.08);
+      padding: 10px 12px;
+      color: #334155;
+      font-size: 11px;
+      line-height: 1.35;
+      display: grid;
+      gap: 7px;
+      pointer-events: none;
+    }
+
+    .atlas-legend.control-hidden {
+      display: none;
+    }
+
+    .atlas-legend strong {
+      color: #172033;
+      font-weight: 780;
+    }
+
+    .year-ramp {
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #2563eb, #0f6b66, #f59e0b, #dc2626);
+      border: 1px solid rgba(15, 23, 42, 0.12);
+    }
+
+    .status-swatch-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .status-swatch {
+      width: 16px;
+      height: 10px;
+      border-radius: 3px;
+      border: 1px solid rgba(15, 23, 42, 0.18);
+      background: var(--swatch);
+    }
+
+    .node-capsule {
+      font-size: 13px;
+      line-height: 1.12;
+      color: #46556b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .node-badge {
+      border-radius: 999px;
+      padding: 4px 6px;
+      font-size: 10px;
+      line-height: 1;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: #334155;
+      max-width: 118px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .node-role {
+      color: #334155;
+      font-size: 11px;
+      line-height: 1.28;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+    }
+
+    .node-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      min-height: 18px;
+    }
+
+    .node-tag {
+      border: 1px solid #d7dee8;
+      border-radius: 999px;
+      color: #334155;
+      background: #f8fafc;
+      font-size: 10px;
+      line-height: 1;
+      padding: 3px 5px;
+      max-width: 92px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .node-relation {
+      color: #6b3a12;
+      font-size: 10px;
+      line-height: 1.15;
+      min-height: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .route-node.dim {
+      opacity: 0.34;
+    }
+
+    .route-node.active,
+    .route-node.selected,
+    .route-node.trigger-hover {
+      border-color: var(--accent);
+      background: rgba(217, 238, 235, 0.58);
+    }
+
+    .route-node.selected {
+      box-shadow: 0 0 0 4px rgba(15, 107, 102, 0.16), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+    }
+
+    .empty-state {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      color: var(--muted);
+      box-shadow: var(--shadow);
+      display: none;
+      max-width: 320px;
+      text-align: center;
+      line-height: 1.35;
+    }
+
+    .empty-state.visible {
+      display: block;
+    }
+
+    .details h2 {
+      font-size: 16px;
+      line-height: 1.24;
+      margin-bottom: 8px;
+    }
+
+    .details-title {
+      font-size: 18px;
+      line-height: 1.24;
+      font-weight: 800;
+      margin: 0 0 8px;
+    }
+
+    .detail-subtitle {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .detail-block {
+      border-top: 1px solid var(--line);
+      padding-top: 13px;
+      margin-top: 13px;
+    }
+
+    .detail-block h3 {
+      margin: 0 0 7px;
+      font-size: 12px;
+      line-height: 1.2;
+      letter-spacing: 0;
+      color: #273244;
+      font-weight: 780;
+    }
+
+    .detail-block p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.45;
+      color: #2f3d52;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 8px;
+      font-size: 11px;
+      line-height: 1;
+      margin: 0 5px 6px 0;
+      background: #fbfcfd;
+      color: #243044;
+      max-width: 100%;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      margin: 8px 0 0;
+    }
+
+    .link-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      padding: 7px 10px;
+      color: #0f4f4a;
+      text-decoration: none;
+      background: #fbfcfd;
+      font-size: 12px;
+      line-height: 1.1;
+      margin-right: 6px;
+      margin-bottom: 6px;
+      cursor: pointer;
+    }
+
+    .link-button:hover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .relation-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .relation-row {
+      display: grid;
+      gap: 4px;
+    }
+
+    .relation-row strong {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .small-note {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .guide-panel {
+      display: grid;
+      gap: 9px;
+      color: #334155;
+      font-size: 12px;
+      line-height: 1.36;
+    }
+
+    .guide-panel p {
+      margin: 0;
+    }
+
+    .guide-panel strong {
+      color: #172033;
+      font-weight: 780;
+    }
+
+    .legend {
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .legend i {
+      width: 26px;
+      height: 0;
+      border-top: 3px solid #0f6b66;
+      display: inline-block;
+    }
+
+    .legend .coverage-line {
+      border-top-color: #9a3412;
+      border-top-style: dashed;
+    }
+
+    .legend .dependency-line {
+      border-top-color: #64748b;
+      border-top-style: dashed;
+    }
+
+    @media (max-width: 1180px) {
+      body {
+        overflow: auto;
+      }
+
+      .app {
+        min-height: 100vh;
+        height: auto;
+        grid-template-columns: 300px minmax(520px, 1fr);
+        grid-template-rows: var(--topbar) 650px auto;
+      }
+
+      .details {
+        grid-column: 1 / -1;
+        border-left: 0;
+        border-top: 1px solid var(--line);
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 840px) {
+      body {
+        overflow: auto;
+      }
+
+      .app {
+        display: block;
+      }
+
+      header {
+        height: auto;
+        min-height: var(--topbar);
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 14px 16px;
+      }
+
+      .header-actions {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 3px;
+      }
+
+      aside,
+      .details {
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        max-height: none;
+      }
+
+      .canvas-wrap {
+        height: 620px;
+        border-bottom: 1px solid var(--line);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <h1>QCFD Reading Landscape</h1>
+        <p>Default view shows the minimum reading path; filters dim non-matching papers.</p>
+      </div>
+      <div class="header-actions" aria-label="Corpus counts">
+        <div class="metric"><strong id="paperCount">0</strong> papers</div>
+        <div class="metric"><strong id="brightCount">0</strong> active</div>
+        <div class="metric"><strong id="pathCount">0</strong> <span id="contextCountLabel">zones</span></div>
+      </div>
+    </header>
+
+    <aside>
+      <section class="section">
+        <h2>View</h2>
+        <div class="view-switch" aria-label="Landscape view">
+          <button id="viewOverlapAtlas" class="view-button" type="button">
+            <strong>Overlap Atlas</strong>
+            <span>ideas by multi-tag intersection</span>
+          </button>
+          <button id="viewRouteMap" class="view-button" type="button">
+            <strong>Route Map</strong>
+            <span>papers, groups, and relations</span>
+          </button>
+        </div>
+      </section>
+
+      <section id="overlapLensSection" class="section">
+        <h2>Overlap Lens</h2>
+        <div id="overlapLensButtons" class="paths"></div>
+      </section>
+
+      <section class="section">
+        <h2>Reading Path</h2>
+        <div id="pathButtons" class="paths"></div>
+      </section>
+
+      <section class="section">
+        <h2>Landscape Guide</h2>
+        <div class="guide-panel">
+          <p><strong>Read the map left to right:</strong> full-stack claims define the target, I/O gates test whether the target survives, then route families show implementation choices.</p>
+          <p><strong>Bright papers</strong> are active for the current path or filters. Dimmed papers stay clickable because older work may still explain provenance or a route detail.</p>
+          <p><strong>Group boxes</strong> are clickable. Use them to explain what each cluster means before opening individual papers.</p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Search</h2>
+        <input id="searchInput" class="search" type="search" placeholder="paper, author, tag, ID">
+      </section>
+
+      <section class="section">
+        <h2>Reading Status</h2>
+        <div id="statusFilters" class="chip-grid"></div>
+      </section>
+
+      <section class="section">
+        <h2>Route Family</h2>
+        <div id="routeFilters" class="chip-grid"></div>
+      </section>
+
+      <section class="section">
+        <div class="toggle-row">
+          <h2 style="margin:0;">Tags</h2>
+          <span>
+            <button id="tagModeAny" class="active" type="button">Any</button>
+            <button id="tagModeAll" type="button">All</button>
+          </span>
+        </div>
+        <div id="tagFilters"></div>
+      </section>
+
+      <section class="section">
+        <h2>Display</h2>
+        <div class="chip-grid">
+          <button id="showRelations" class="chip active" type="button">Relations</button>
+          <button id="showBackground" class="chip" type="button">Brighten Reference</button>
+          <button id="resetFilters" class="chip" type="button">Reset Filters</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Connection Guide</h2>
+        <div class="guide-panel" style="margin-bottom:10px;">
+          <p><strong>Path:</strong> the efficient reading sequence for the selected route.</p>
+          <p><strong>Covered by newer:</strong> read the newer paper first; keep the older one for provenance.</p>
+          <p><strong>Depends on / read before:</strong> method or assumption links that explain why an older paper remains useful.</p>
+        </div>
+        <div class="legend">
+          <span><i></i> reading path order</span>
+          <span><i class="coverage-line"></i> covered by newer</span>
+          <span><i class="dependency-line"></i> depends on / read before</span>
+        </div>
+      </section>
+    </aside>
+
+    <main class="canvas-wrap" aria-label="Interactive research landscape">
+      <div class="canvas-toolbar">
+        <button id="fitButton" class="toolbar-button" type="button">Fit</button>
+        <button id="zoomInButton" class="toolbar-button" type="button">Zoom In</button>
+        <button id="zoomOutButton" class="toolbar-button" type="button">Zoom Out</button>
+        <button id="wholeLandscapeButton" class="toolbar-button" type="button">Whole Landscape</button>
+      </div>
+      <div id="atlasLegend" class="atlas-legend">
+        <strong>Overlap Atlas Legend</strong>
+        <span>Fill color = reading status / reading order.</span>
+        <span>Border gradient = publication year from older blue to newer red.</span>
+        <span>Zone position = tag overlap, not citation influence.</span>
+        <span>Dimmed papers stay clickable.</span>
+        <div class="year-ramp" aria-hidden="true"></div>
+        <div class="status-swatch-row" aria-hidden="true">
+          <i class="status-swatch" style="--swatch:#fff1f2"></i>
+          <i class="status-swatch" style="--swatch:#fff7db"></i>
+          <i class="status-swatch" style="--swatch:#d9eeeb"></i>
+          <i class="status-swatch" style="--swatch:#fff4ed"></i>
+          <i class="status-swatch" style="--swatch:#f1f5f9"></i>
+          <i class="status-swatch" style="--swatch:#f5f3ff"></i>
+        </div>
+      </div>
+      <div id="viewport" class="viewport">
+        <div id="stage" class="stage">
+          <svg id="edges" class="edges" viewBox="0 0 3300 3300" aria-hidden="true">
+            <defs>
+              <marker id="arrowCoverage" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#9a3412"></path>
+              </marker>
+              <marker id="arrowDependency" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"></path>
+              </marker>
+              <marker id="arrowReadBefore" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"></path>
+              </marker>
+            </defs>
+          </svg>
+          <div id="nodes"></div>
+        </div>
+        <div id="emptyState" class="empty-state">No papers match the current filters.</div>
+      </div>
+    </main>
+
+    <section id="details" class="details" aria-live="polite"></section>
+  </div>
+
+  <script>
+    (() => {
+      const data = window.QCFD_LANDSCAPE;
+      if (!data) {
+        document.body.innerHTML = "<p>Landscape data did not load.</p>";
+        return;
+      }
+
+      const statusClass = (status) => `status-${status.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
+      const ROUTE_STAGE = { width: 3300, height: 3300 };
+      const ATLAS_STAGE = { width: 3600, height: 4200 };
+      let currentStage = { ...ATLAS_STAGE };
+      const paperById = new Map(data.papers.map((paper) => [paper.id, paper]));
+      const routesById = new Map(data.routeNodes.map((route) => [route.id, route]));
+      const overlapLensById = new Map((data.overlapLenses || []).map((lens) => [lens.id, lens]));
+      const defaultLensId = overlapLensById.has("method-families") ? "method-families" : (data.overlapLenses?.[0]?.id || "");
+      const minYear = Math.min(...data.papers.map((paper) => Number.parseInt(paper.year, 10)).filter(Number.isFinite));
+      const maxYear = Math.max(...data.papers.map((paper) => Number.parseInt(paper.year, 10)).filter(Number.isFinite));
+      const pathItems = [
+        { id: "minimum", label: "Minimum Reading Path", description: "Shortest decision path" },
+        ...data.paths.filter((path) => path.id !== "minimum"),
+        { id: "all", label: "Whole Landscape", description: "All papers, old work dimmed by default" }
+      ];
+      const pathById = new Map(data.paths.map((path) => [path.id, path]));
+      const activeStatuses = new Set(["Read First", "Read With", "Read If Building", "Skim For Warning"]);
+      const backgroundStatuses = new Set(["Reference Only", "Covered By Newer", "Watch"]);
+      const state = {
+        viewMode: "atlas",
+        activeLens: defaultLensId,
+        activePath: "minimum",
+        selectedTags: new Set(),
+        selectedStatuses: new Set(),
+        selectedRoutes: new Set(),
+        tagMode: "any",
+        search: "",
+        showRelations: true,
+        showBackground: false,
+        detailMode: "paper",
+        selectedPaperId: "QRE-002",
+        selectedGroupId: null,
+        selectedOverlapId: null,
+        zoom: 0.63,
+        panX: 20,
+        panY: 20
+      };
+
+      const groupLayouts = {
+        "route-ftqc": { x: 54, y: 70, w: 760, h: 500, cols: 3 },
+        "gate-io": { x: 870, y: 70, w: 1010, h: 670, cols: 4 },
+        "route-qlsa": { x: 1936, y: 70, w: 760, h: 670, cols: 3 },
+        "route-lbm": { x: 54, y: 820, w: 1260, h: 1380, cols: 5 },
+        "route-car": { x: 1370, y: 820, w: 1010, h: 1210, cols: 4 },
+        "route-prim": { x: 2436, y: 820, w: 560, h: 1380, cols: 2 },
+        "route-surv": { x: 1370, y: 2240, w: 1010, h: 900, cols: 4 }
+      };
+
+      const prefixToGroup = {
+        QRE: "route-ftqc",
+        IO: "gate-io",
+        WATCH: "route-surv",
+        LBM: "route-lbm",
+        CAR: "route-car",
+        QLSA: "route-qlsa",
+        PRIM: "route-prim",
+        SURV: "route-surv"
+      };
+
+      const paperPositions = new Map();
+      const routePositions = new Map();
+      const overlapPositions = new Map();
+      const overlapZoneById = new Map();
+      const paperOverlapSets = new Map();
+      const paperOverlapZone = new Map();
+      const visibleState = new Map();
+      const edgesState = [];
+
+      const els = {
+        paperCount: document.getElementById("paperCount"),
+        brightCount: document.getElementById("brightCount"),
+        pathCount: document.getElementById("pathCount"),
+        contextCountLabel: document.getElementById("contextCountLabel"),
+        viewOverlapAtlas: document.getElementById("viewOverlapAtlas"),
+        viewRouteMap: document.getElementById("viewRouteMap"),
+        overlapLensSection: document.getElementById("overlapLensSection"),
+        overlapLensButtons: document.getElementById("overlapLensButtons"),
+        pathButtons: document.getElementById("pathButtons"),
+        statusFilters: document.getElementById("statusFilters"),
+        routeFilters: document.getElementById("routeFilters"),
+        tagFilters: document.getElementById("tagFilters"),
+        searchInput: document.getElementById("searchInput"),
+        showRelations: document.getElementById("showRelations"),
+        showBackground: document.getElementById("showBackground"),
+        resetFilters: document.getElementById("resetFilters"),
+        fitButton: document.getElementById("fitButton"),
+        zoomInButton: document.getElementById("zoomInButton"),
+        zoomOutButton: document.getElementById("zoomOutButton"),
+        wholeLandscapeButton: document.getElementById("wholeLandscapeButton"),
+        tagModeAny: document.getElementById("tagModeAny"),
+        tagModeAll: document.getElementById("tagModeAll"),
+        viewport: document.getElementById("viewport"),
+        stage: document.getElementById("stage"),
+        nodes: document.getElementById("nodes"),
+        edges: document.getElementById("edges"),
+        atlasLegend: document.getElementById("atlasLegend"),
+        emptyState: document.getElementById("emptyState"),
+        details: document.getElementById("details")
+      };
+
+      function primaryGroupForPaper(paper) {
+        if (paper.id.startsWith("QRE-005")) return "route-car";
+        if (paper.id.startsWith("QRE-002") || paper.id.startsWith("QRE-004")) return "route-lbm";
+        const prefix = paper.id.split("-")[0];
+        return prefixToGroup[prefix] || "route-ftqc";
+      }
+
+      function computeLayout() {
+        paperPositions.clear();
+        routePositions.clear();
+        overlapPositions.clear();
+        overlapZoneById.clear();
+        paperOverlapSets.clear();
+        paperOverlapZone.clear();
+        if (state.viewMode === "atlas") computeOverlapLayout();
+        else computeRouteLayout();
+        syncStageSize();
+      }
+
+      function computeRouteLayout() {
+        currentStage = { ...ROUTE_STAGE };
+        Object.entries(groupLayouts).forEach(([id, layout]) => {
+          routePositions.set(id, {
+            x: layout.x,
+            y: layout.y,
+            w: layout.w,
+            h: layout.h,
+            cx: layout.x + layout.w / 2,
+            cy: layout.y + 42
+          });
+        });
+
+        const papersByGroup = new Map(Object.keys(groupLayouts).map((id) => [id, []]));
+        data.papers.forEach((paper) => {
+          const group = primaryGroupForPaper(paper);
+          papersByGroup.get(group).push(paper);
+        });
+
+        const cardW = 232;
+        const cardH = 150;
+        const gapX = 18;
+        const gapY = 18;
+        papersByGroup.forEach((papers, groupId) => {
+          const layout = groupLayouts[groupId];
+          papers.forEach((paper, index) => {
+            const col = index % layout.cols;
+            const row = Math.floor(index / layout.cols);
+            const x = layout.x + 18 + col * (cardW + gapX);
+            const y = layout.y + 166 + row * (cardH + gapY);
+            paperPositions.set(paper.id, {
+              x,
+              y,
+              w: cardW,
+              h: cardH,
+              cx: x + cardW / 2,
+              cy: y + cardH / 2
+            });
+          });
+        });
+      }
+
+      function computeOverlapLayout() {
+        const lens = currentLens();
+        const zones = buildOverlapZones(lens);
+        const stageW = ATLAS_STAGE.width;
+        const marginX = 58;
+        const marginY = 70;
+        const zoneGap = 24;
+        const zoneW = 820;
+        const cardW = 174;
+        const cardH = 118;
+        const cardGap = 12;
+        const cardCols = 4;
+        const headerH = 132;
+        let y = marginY;
+
+        const placeRows = (rows) => {
+          rows.forEach((row) => {
+            let x = marginX;
+            let rowH = 0;
+            row.forEach((zone) => {
+              const paperRows = Math.ceil(zone.papers.length / cardCols);
+              const zoneH = Math.max(250, headerH + Math.max(1, paperRows) * (cardH + cardGap) + 22);
+              zone.position = { x, y, w: zoneW, h: zoneH, cx: x + zoneW / 2, cy: y + 42 };
+              overlapPositions.set(zone.id, zone.position);
+              overlapZoneById.set(zone.id, zone);
+              zone.papers.forEach((paper, index) => {
+                const col = index % cardCols;
+                const rowIndex = Math.floor(index / cardCols);
+                const paperX = x + 16 + col * (cardW + cardGap);
+                const paperY = y + headerH + rowIndex * (cardH + cardGap);
+                paperPositions.set(paper.id, {
+                  x: paperX,
+                  y: paperY,
+                  w: cardW,
+                  h: cardH,
+                  cx: paperX + cardW / 2,
+                  cy: paperY + cardH / 2
+                });
+              });
+              x += zoneW + zoneGap;
+              rowH = Math.max(rowH, zoneH);
+            });
+            y += rowH + zoneGap;
+          });
+        };
+
+        placeRows(chunkZones(zones.filter((zone) => zone.kind === "single"), 4));
+        placeRows(chunkZones(zones.filter((zone) => zone.kind === "overlap"), 4));
+        placeRows(chunkZones(zones.filter((zone) => zone.kind === "deep" || zone.kind === "outside"), 4));
+        currentStage = { width: stageW, height: Math.max(ATLAS_STAGE.height, y + 80) };
+      }
+
+      function chunkZones(zones, size) {
+        const rows = [];
+        for (let index = 0; index < zones.length; index += size) {
+          rows.push(zones.slice(index, index + size));
+        }
+        return rows;
+      }
+
+      function currentLens() {
+        return overlapLensById.get(state.activeLens) || data.overlapLenses?.[0] || { sets: [], label: "Overlap Lens" };
+      }
+
+      function buildOverlapZones(lens) {
+        const setOrder = new Map((lens.sets || []).map((set, index) => [set.id, index]));
+        const zones = new Map();
+        const ensureZone = (key, setIds, kind) => {
+          if (zones.has(key)) return zones.get(key);
+          const labels = setIds.map((id) => lens.sets.find((set) => set.id === id)?.label || id);
+          const note = findOverlapNote(lens.id, setIds);
+          const zone = {
+            id: key,
+            key,
+            lensId: lens.id,
+            setIds,
+            kind,
+            note,
+            label: zoneLabel(labels, kind),
+            description: zoneDescription(lens, setIds, kind, note),
+            papers: []
+          };
+          zones.set(key, zone);
+          return zone;
+        };
+
+        (lens.sets || []).forEach((set) => ensureZone(set.id, [set.id], "single"));
+        ensureZone("deep-overlap", (lens.sets || []).map((set) => set.id), "deep");
+
+        data.papers.forEach((paper) => {
+          const matches = (lens.sets || [])
+            .filter((set) => paperMatchesOverlapSet(paper, set))
+            .map((set) => set.id)
+            .sort((a, b) => (setOrder.get(a) || 0) - (setOrder.get(b) || 0));
+          const key = matches.length === 0
+            ? "outside"
+            : matches.length >= 4
+              ? "deep-overlap"
+              : matches.join("__");
+          const kind = matches.length === 0 ? "outside" : matches.length === 1 ? "single" : matches.length >= 4 ? "deep" : "overlap";
+          const zone = ensureZone(key, matches, kind);
+          zone.papers.push(paper);
+          paperOverlapSets.set(paper.id, matches);
+          paperOverlapZone.set(paper.id, key);
+        });
+
+        const order = { single: 0, overlap: 1, deep: 2, outside: 3 };
+        return [...zones.values()]
+          .filter((zone) => zone.kind === "single" || zone.kind === "deep" || zone.papers.length)
+          .sort((a, b) => {
+            const byKind = order[a.kind] - order[b.kind];
+            if (byKind) return byKind;
+            if (a.kind === "single") return (setOrder.get(a.setIds[0]) || 0) - (setOrder.get(b.setIds[0]) || 0);
+            return b.papers.length - a.papers.length || a.label.localeCompare(b.label);
+          });
+      }
+
+      function paperMatchesOverlapSet(paper, set) {
+        const tagOk = (set.tagsAny || []).some((tag) => paper.tags.includes(tag));
+        const statusOk = (set.statusAny || []).includes(paper.readingStatus);
+        return tagOk || statusOk;
+      }
+
+      function findOverlapNote(lensId, setIds) {
+        const sorted = [...setIds].sort().join("__");
+        return (data.overlapNotes || []).find((note) => {
+          if (note.lensId && note.lensId !== lensId) return false;
+          return [...note.setIds].sort().join("__") === sorted;
+        }) || null;
+      }
+
+      function zoneLabel(labels, kind) {
+        if (kind === "deep") return "Deep overlap";
+        if (kind === "outside") return "Outside this lens";
+        return labels.join(" + ");
+      }
+
+      function zoneDescription(lens, setIds, kind, note) {
+        if (note?.whyItMatters) return note.whyItMatters;
+        if (kind === "deep") return "Papers matching four or more sets. These are dense idea-transfer points across the field.";
+        if (kind === "outside") return "Papers that do not match the active lens. They remain visible so the corpus stays complete.";
+        const sets = setIds.map((id) => lens.sets.find((set) => set.id === id)).filter(Boolean);
+        if (sets.length === 1) return sets[0].description;
+        return sets.map((set) => set.whyItMatters || set.description).join(" ");
+      }
+
+      function syncStageSize() {
+        els.stage.style.width = `${currentStage.width}px`;
+        els.stage.style.height = `${currentStage.height}px`;
+        els.edges.setAttribute("viewBox", `0 0 ${currentStage.width} ${currentStage.height}`);
+      }
+
+      function renderControls() {
+        els.viewOverlapAtlas.classList.toggle("active", state.viewMode === "atlas");
+        els.viewRouteMap.classList.toggle("active", state.viewMode === "route");
+        els.overlapLensSection.classList.toggle("control-hidden", state.viewMode !== "atlas");
+        els.atlasLegend.classList.toggle("control-hidden", state.viewMode !== "atlas");
+
+        els.overlapLensButtons.innerHTML = "";
+        (data.overlapLenses || []).forEach((lens) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `path-button${state.activeLens === lens.id ? " active" : ""}`;
+          button.dataset.lensId = lens.id;
+          button.innerHTML = `<strong>${escapeHtml(lens.label)}</strong><span>${escapeHtml(lens.description)}</span>`;
+          button.addEventListener("click", () => {
+            state.activeLens = lens.id;
+            state.detailMode = "paper";
+            state.selectedOverlapId = null;
+            render();
+            fitStage();
+          });
+          els.overlapLensButtons.appendChild(button);
+        });
+
+        els.pathButtons.innerHTML = "";
+        pathItems.forEach((path) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `path-button${state.activePath === path.id ? " active" : ""}`;
+          button.dataset.path = path.id;
+          button.innerHTML = `<strong>${path.label}</strong><span>${path.description}</span>`;
+          button.addEventListener("click", () => {
+            state.activePath = path.id;
+            render();
+          });
+          els.pathButtons.appendChild(button);
+        });
+
+        els.statusFilters.innerHTML = "";
+        data.statusDefinitions.forEach((status) => {
+          const button = filterButton(status.id, state.selectedStatuses.has(status.id), statusClass(status.id));
+          button.title = status.description;
+          button.addEventListener("click", () => {
+            toggleSet(state.selectedStatuses, status.id);
+            render();
+          });
+          els.statusFilters.appendChild(button);
+        });
+
+        els.routeFilters.innerHTML = "";
+        data.routeNodes
+          .filter((route) => ["route", "gate", "benchmark"].includes(route.type))
+          .forEach((route) => {
+            const button = filterButton(route.label, state.selectedRoutes.has(route.id), "");
+            button.addEventListener("click", () => {
+              toggleSet(state.selectedRoutes, route.id);
+              render();
+            });
+            els.routeFilters.appendChild(button);
+          });
+
+        renderTagFilters();
+        els.tagModeAny.classList.toggle("active", state.tagMode === "any");
+        els.tagModeAll.classList.toggle("active", state.tagMode === "all");
+        els.showRelations.classList.toggle("active", state.showRelations);
+        els.showBackground.classList.toggle("active", state.showBackground);
+      }
+
+      function renderTagFilters() {
+        const seenTags = new Set(data.papers.flatMap((paper) => paper.tags));
+        const grouped = new Map();
+        Object.entries(data.tagGroups).forEach(([group, tags]) => {
+          const available = tags.filter((tag) => seenTags.has(tag));
+          if (available.length) grouped.set(group, available);
+        });
+        const groupedTags = new Set([...grouped.values()].flat());
+        const otherTags = [...seenTags].filter((tag) => !groupedTags.has(tag)).sort();
+        if (otherTags.length) grouped.set("other", otherTags);
+
+        els.tagFilters.innerHTML = "";
+        grouped.forEach((tags, group) => {
+          const details = document.createElement("details");
+          details.open = ["formulation", "method", "io", "resource"].includes(group);
+          const summary = document.createElement("summary");
+          summary.textContent = titleCase(group);
+          details.appendChild(summary);
+          const grid = document.createElement("div");
+          grid.className = "chip-grid";
+          tags.forEach((tag) => {
+            const button = filterButton(tag, state.selectedTags.has(tag), "");
+            button.addEventListener("click", () => {
+              toggleSet(state.selectedTags, tag);
+              render();
+            });
+            grid.appendChild(button);
+          });
+          details.appendChild(grid);
+          els.tagFilters.appendChild(details);
+        });
+      }
+
+      function filterButton(label, active, extraClass) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `chip${active ? " active" : ""}${extraClass ? ` ${extraClass}` : ""}`;
+        button.textContent = label;
+        return button;
+      }
+
+      function toggleSet(set, value) {
+        if (set.has(value)) set.delete(value);
+        else set.add(value);
+      }
+
+      function routeKeyline(route) {
+        const ids = (route.keyPaperIds || []).filter((id) => paperById.has(id));
+        return ids.length ? ids.join(", ") : "Use filters to inspect papers";
+      }
+
+      function overlapKeyline(zone) {
+        const ids = zone.note?.keyPaperIds?.filter((id) => paperById.has(id)) || [];
+        if (ids.length) return ids.slice(0, 5).join(", ");
+        const ranked = [...zone.papers].sort(readingSort).slice(0, 5).map((paper) => paper.id);
+        return ranked.length ? ranked.join(", ") : "No papers currently in this zone";
+      }
+
+      function readingSort(a, b) {
+        const order = {
+          "Read First": 0,
+          "Read With": 1,
+          "Skim For Warning": 2,
+          "Read If Building": 3,
+          "Reference Only": 4,
+          "Covered By Newer": 5,
+          "Watch": 6
+        };
+        return (order[a.readingStatus] ?? 9) - (order[b.readingStatus] ?? 9) ||
+          Number.parseInt(b.year, 10) - Number.parseInt(a.year, 10) ||
+          a.id.localeCompare(b.id);
+      }
+
+      function overlapSetLabels(paper) {
+        const lens = currentLens();
+        const ids = paperOverlapSets.get(paper.id) || [];
+        return ids.map((id) => lens.sets.find((set) => set.id === id)?.label || id);
+      }
+
+      function statusFill(status) {
+        return {
+          "Read First": "#fff1f2",
+          "Read With": "#fff7db",
+          "Read If Building": "#d9eeeb",
+          "Skim For Warning": "#fff4ed",
+          "Reference Only": "#f1f5f9",
+          "Covered By Newer": "#f3f4f6",
+          "Watch": "#f5f3ff"
+        }[status] || "#ffffff";
+      }
+
+      function yearGradient(year) {
+        const parsed = Number.parseInt(year, 10);
+        const span = Math.max(1, maxYear - minYear);
+        const t = Number.isFinite(parsed) ? clamp((parsed - minYear) / span, 0, 1) : 0.5;
+        const hue = Math.round(215 - t * 195);
+        const hue2 = Math.round(235 - t * 160);
+        return {
+          a: `hsl(${hue} 70% 42%)`,
+          b: `hsl(${hue2} 84% 55%)`
+        };
+      }
+
+      function cardTags(paper) {
+        const lowSignal = new Set(["Core", "Adjacent", "Foundation", "Watch", "Review", "Peer-Reviewed", "Preprint"]);
+        const tags = paper.tags.filter((tag) => !lowSignal.has(tag));
+        return tags.slice(0, 4);
+      }
+
+      function shortRole(value) {
+        return String(value || "").replace(/\.$/, "");
+      }
+
+      function relationHint(paper) {
+        if (paper.coveredBy.length) return `read instead: ${paper.coveredBy.join(", ")}`;
+        if (paper.dependsOn.length) return `depends on: ${paper.dependsOn.slice(0, 2).join(", ")}`;
+        if (paper.readBefore.length) return `read before: ${paper.readBefore.slice(0, 2).join(", ")}`;
+        if (paper.readingStatus === "Read First") return "start here for decisions";
+        if (paper.readingStatus === "Read If Building") return "open if this route is chosen";
+        return paper.readingStatus.toLowerCase();
+      }
+
+      function renderNodes() {
+        els.nodes.innerHTML = "";
+        if (state.viewMode === "atlas") {
+          renderOverlapNodes();
+          return;
+        }
+        renderRouteNodes();
+      }
+
+      function renderRouteNodes() {
+        data.routeNodes
+          .filter((route) => routePositions.has(route.id))
+          .forEach((route) => {
+            const position = routePositions.get(route.id);
+            const papers = data.papers.filter((paper) => primaryGroupForPaper(paper) === route.id);
+            const node = document.createElement("div");
+            node.className = "route-node";
+            node.dataset.routeId = route.id;
+            node.setAttribute("role", "button");
+            node.tabIndex = 0;
+            node.style.setProperty("--node-x", `${position.x}px`);
+            node.style.setProperty("--node-y", `${position.y}px`);
+            node.style.setProperty("--node-w", `${position.w}px`);
+            node.style.setProperty("--node-h", `${position.h}px`);
+            node.innerHTML = `
+              <div class="route-label">${escapeHtml(route.label)}</div>
+              <div class="route-meta">${papers.length} papers</div>
+              <div class="route-body">
+                <div>${escapeHtml(route.description || "")}</div>
+                <div><strong>Why:</strong> ${escapeHtml(route.whyItMatters || "")}</div>
+                <div class="route-keyline"><strong>Start:</strong> ${escapeHtml(routeKeyline(route))}</div>
+              </div>
+            `;
+            node.addEventListener("pointerdown", (event) => event.stopPropagation());
+            node.addEventListener("click", (event) => {
+              event.stopPropagation();
+              selectGroup(route.id);
+            });
+            node.addEventListener("keydown", (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                selectGroup(route.id);
+              }
+            });
+            els.nodes.appendChild(node);
+
+            const trigger = document.createElement("button");
+            trigger.type = "button";
+            trigger.className = "route-node-trigger";
+            trigger.dataset.routeTrigger = route.id;
+            trigger.setAttribute("aria-label", `Open route group ${route.label}`);
+            trigger.style.setProperty("--node-x", `${position.x}px`);
+            trigger.style.setProperty("--node-y", `${position.y}px`);
+            trigger.style.setProperty("--node-w", `${position.w}px`);
+            trigger.addEventListener("pointerdown", (event) => event.stopPropagation());
+            trigger.addEventListener("mouseenter", () => node.classList.add("trigger-hover"));
+            trigger.addEventListener("mouseleave", () => node.classList.remove("trigger-hover"));
+            trigger.addEventListener("focus", () => node.classList.add("trigger-hover"));
+            trigger.addEventListener("blur", () => node.classList.remove("trigger-hover"));
+            trigger.addEventListener("click", (event) => {
+              event.stopPropagation();
+              selectGroup(route.id);
+            });
+            els.nodes.appendChild(trigger);
+          });
+
+        data.papers.forEach((paper) => {
+          const position = paperPositions.get(paper.id);
+          const node = document.createElement("button");
+          node.type = "button";
+          node.className = "paper-node";
+          node.dataset.paperId = paper.id;
+          node.style.setProperty("--node-x", `${position.x}px`);
+          node.style.setProperty("--node-y", `${position.y}px`);
+          node.innerHTML = `
+            <span class="node-id-row">
+              <span class="node-id">${escapeHtml(`${paper.id} / ${paper.alias}`)}</span>
+              <span class="node-badge ${statusClass(paper.readingStatus)}">${escapeHtml(paper.readingStatus)}</span>
+            </span>
+            <span class="node-title">${escapeHtml(`${paper.author} ${paper.year}`)}</span>
+            <span class="node-capsule">${escapeHtml(paper.capsule)}</span>
+            <span class="node-role">${escapeHtml(shortRole(paper.routeRole))}</span>
+            <span class="node-tags">${cardTags(paper).map((tag) => `<span class="node-tag">${escapeHtml(tag)}</span>`).join("")}</span>
+            <span class="node-relation">${escapeHtml(relationHint(paper))}</span>
+          `;
+          node.title = `${paper.id} ${paper.title}`;
+          node.addEventListener("pointerdown", (event) => event.stopPropagation());
+          node.addEventListener("click", (event) => {
+            event.stopPropagation();
+            selectPaper(paper.id);
+          });
+          els.nodes.appendChild(node);
+        });
+      }
+
+      function renderOverlapNodes() {
+        overlapZoneById.forEach((zone) => {
+          const position = overlapPositions.get(zone.id);
+          if (!position) return;
+          const node = document.createElement("div");
+          node.className = `overlap-zone ${zone.kind}`;
+          node.dataset.overlapZoneId = zone.id;
+          node.setAttribute("role", "button");
+          node.tabIndex = 0;
+          node.style.setProperty("--zone-x", `${position.x}px`);
+          node.style.setProperty("--zone-y", `${position.y}px`);
+          node.style.setProperty("--zone-w", `${position.w}px`);
+          node.style.setProperty("--zone-h", `${position.h}px`);
+          node.innerHTML = `
+            <div class="overlap-label">${escapeHtml(zone.label)}</div>
+            <div class="overlap-meta">${zone.papers.length} papers</div>
+            <div class="overlap-body">
+              <div>${escapeHtml(zone.description)}</div>
+              <div><strong>Start:</strong> ${escapeHtml(overlapKeyline(zone))}</div>
+            </div>
+          `;
+          node.addEventListener("pointerdown", (event) => event.stopPropagation());
+          node.addEventListener("click", (event) => {
+            event.stopPropagation();
+            selectOverlap(zone.id);
+          });
+          node.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              selectOverlap(zone.id);
+            }
+          });
+          els.nodes.appendChild(node);
+
+          const trigger = document.createElement("button");
+          trigger.type = "button";
+          trigger.className = "overlap-zone-trigger";
+          trigger.dataset.overlapZoneTrigger = zone.id;
+          trigger.setAttribute("aria-label", `Open overlap zone ${zone.label}`);
+          trigger.style.setProperty("--zone-x", `${position.x}px`);
+          trigger.style.setProperty("--zone-y", `${position.y}px`);
+          trigger.style.setProperty("--zone-w", `${position.w}px`);
+          trigger.addEventListener("pointerdown", (event) => event.stopPropagation());
+          trigger.addEventListener("mouseenter", () => node.classList.add("trigger-hover"));
+          trigger.addEventListener("mouseleave", () => node.classList.remove("trigger-hover"));
+          trigger.addEventListener("focus", () => node.classList.add("trigger-hover"));
+          trigger.addEventListener("blur", () => node.classList.remove("trigger-hover"));
+          trigger.addEventListener("click", (event) => {
+            event.stopPropagation();
+            selectOverlap(zone.id);
+          });
+          els.nodes.appendChild(trigger);
+        });
+
+        data.papers.forEach((paper) => {
+          const position = paperPositions.get(paper.id);
+          if (!position) return;
+          const year = yearGradient(paper.year);
+          const node = document.createElement("button");
+          node.type = "button";
+          node.className = `paper-node atlas-paper-node ${statusClass(paper.readingStatus)}`;
+          node.dataset.paperId = paper.id;
+          node.style.setProperty("--node-x", `${position.x}px`);
+          node.style.setProperty("--node-y", `${position.y}px`);
+          node.style.setProperty("--status-fill", statusFill(paper.readingStatus));
+          node.style.setProperty("--year-a", year.a);
+          node.style.setProperty("--year-b", year.b);
+          const lensLabels = overlapSetLabels(paper).slice(0, 3);
+          node.innerHTML = `
+            <span class="node-id-row">
+              <span class="node-id">${escapeHtml(paper.id)}</span>
+              <span class="node-badge ${statusClass(paper.readingStatus)}">${escapeHtml(paper.readingStatus)}</span>
+            </span>
+            <span class="node-title">${escapeHtml(`${paper.author} ${paper.year}`)}</span>
+            <span class="node-capsule">${escapeHtml(paper.capsule)}</span>
+            <span class="node-role">${escapeHtml(relationHint(paper))}</span>
+            <span class="node-tags">${lensLabels.map((label) => `<span class="node-tag">${escapeHtml(label)}</span>`).join("")}</span>
+          `;
+          node.title = `${paper.id} ${paper.title}`;
+          node.addEventListener("pointerdown", (event) => event.stopPropagation());
+          node.addEventListener("click", (event) => {
+            event.stopPropagation();
+            selectPaper(paper.id);
+          });
+          els.nodes.appendChild(node);
+        });
+      }
+
+      function computeEdges() {
+        edgesState.length = 0;
+        data.papers.forEach((paper) => {
+          paper.coveredBy.forEach((targetId) => addEdge(paper.id, targetId, "coverage", "covered by"));
+          paper.dependsOn.forEach((targetId) => addEdge(paper.id, targetId, "dependency", "depends on"));
+          paper.readBefore.forEach((targetId) => addEdge(paper.id, targetId, "read-before", "read before"));
+        });
+      }
+
+      function addEdge(sourceId, targetId, type, label) {
+        if (!paperPositions.has(sourceId) || !paperPositions.has(targetId)) return;
+        edgesState.push({ sourceId, targetId, type, label });
+      }
+
+      function renderEdges() {
+        els.edges.querySelectorAll(".edge").forEach((edge) => edge.remove());
+        if (state.viewMode !== "route") return;
+        const activePath = pathById.get(state.activePath);
+        if (activePath) {
+          activePath.papers.slice(0, -1).forEach((sourceId, index) => {
+            const targetId = activePath.papers[index + 1];
+            drawEdge({ sourceId, targetId, type: "path", label: "path" });
+          });
+        }
+        edgesState.forEach((edge) => {
+          if (state.showRelations) drawEdge(edge);
+        });
+      }
+
+      function drawEdge(edge) {
+        const source = paperPositions.get(edge.sourceId);
+        const target = paperPositions.get(edge.targetId);
+        if (!source || !target) return;
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        const dx = target.cx - source.cx;
+        const dy = target.cy - source.cy;
+        const curve = Math.min(150, Math.max(50, Math.abs(dx) * 0.26));
+        const c1x = source.cx + Math.sign(dx || 1) * curve;
+        const c2x = target.cx - Math.sign(dx || 1) * curve;
+        const path = `M ${source.cx} ${source.cy} C ${c1x} ${source.cy + dy * 0.08}, ${c2x} ${target.cy - dy * 0.08}, ${target.cx} ${target.cy}`;
+        line.setAttribute("d", path);
+        line.setAttribute("class", `edge ${edge.type}`);
+        line.dataset.source = edge.sourceId;
+        line.dataset.target = edge.targetId;
+        els.edges.appendChild(line);
+      }
+
+      function paperMatchesFilters(paper) {
+        const activePath = pathById.get(state.activePath);
+        const pathOk = state.viewMode !== "route" || !activePath || activePath.papers.includes(paper.id);
+        const query = state.search.trim().toLowerCase();
+        const haystack = [
+          paper.id,
+          paper.alias,
+          paper.citationKey,
+          paper.author,
+          paper.year,
+          paper.capsule,
+          paper.title,
+          paper.summary,
+          ...paper.tags
+        ].join(" ").toLowerCase();
+        const searchOk = !query || haystack.includes(query);
+        const statusOk = state.selectedStatuses.size === 0 || state.selectedStatuses.has(paper.readingStatus);
+        const routeOk = state.selectedRoutes.size === 0 || paper.routeIds.some((routeId) => state.selectedRoutes.has(routeId));
+        const tagOk = state.selectedTags.size === 0 ||
+          (state.tagMode === "all"
+            ? [...state.selectedTags].every((tag) => paper.tags.includes(tag))
+            : paper.tags.some((tag) => state.selectedTags.has(tag)));
+        return pathOk && searchOk && statusOk && routeOk && tagOk;
+      }
+
+      function updateVisibility() {
+        const activePath = pathById.get(state.activePath);
+        const activePathSet = new Set(activePath?.papers || []);
+        const filterActive = Boolean(
+          state.search.trim() ||
+          state.selectedTags.size ||
+          state.selectedStatuses.size ||
+          state.selectedRoutes.size ||
+          (state.viewMode === "route" && activePath)
+        );
+        let bright = 0;
+
+        data.papers.forEach((paper) => {
+          const matches = paperMatchesFilters(paper);
+          const backgroundDim = state.viewMode === "route" &&
+            !state.showBackground &&
+            !activePath &&
+            !state.selectedStatuses.size &&
+            backgroundStatuses.has(paper.readingStatus);
+          const dim = !matches || backgroundDim;
+          const hidden = false;
+          visibleState.set(paper.id, { matches, dim, hidden });
+          const node = els.nodes.querySelector(`[data-paper-id="${cssEscape(paper.id)}"]`);
+          if (node) {
+            node.classList.toggle("dim", dim);
+            node.classList.toggle("hidden", hidden);
+            node.classList.toggle("selected", state.detailMode === "paper" && state.selectedPaperId === paper.id);
+          }
+          if (!dim && !hidden) bright += 1;
+        });
+
+        if (state.viewMode === "route") {
+          data.routeNodes.forEach((route) => {
+            const papers = data.papers.filter((paper) => paper.routeIds.includes(route.id) || primaryGroupForPaper(paper) === route.id);
+            const anyBright = papers.some((paper) => visibleState.get(paper.id) && !visibleState.get(paper.id).dim);
+            const anyPath = papers.some((paper) => activePathSet.has(paper.id));
+            const selected = state.selectedRoutes.has(route.id);
+            const detailSelected = state.detailMode === "group" && state.selectedGroupId === route.id;
+            const node = els.nodes.querySelector(`[data-route-id="${cssEscape(route.id)}"]`);
+            if (node) {
+              node.classList.toggle("active", anyBright || anyPath || selected);
+              node.classList.toggle("selected", detailSelected);
+              node.classList.toggle("dim", filterActive && !(anyBright || anyPath || selected || detailSelected));
+            }
+          });
+        } else {
+          overlapZoneById.forEach((zone) => {
+            const anyBright = zone.papers.some((paper) => visibleState.get(paper.id) && !visibleState.get(paper.id).dim);
+            const detailSelected = state.detailMode === "overlap" && state.selectedOverlapId === zone.id;
+            const node = els.nodes.querySelector(`[data-overlap-zone-id="${cssEscape(zone.id)}"]`);
+            if (node) {
+              node.classList.toggle("active", anyBright);
+              node.classList.toggle("selected", detailSelected);
+              node.classList.toggle("dim", filterActive && !(anyBright || detailSelected));
+            }
+          });
+        }
+
+        const selectedGroupPapers = state.detailMode === "group" ? new Set(groupPaperIds(state.selectedGroupId)) : new Set();
+        els.edges.querySelectorAll(".edge").forEach((edge) => {
+          const source = visibleState.get(edge.dataset.source);
+          const target = visibleState.get(edge.dataset.target);
+          const dim = !source || !target || source.dim || target.dim;
+          const selectedRelation = state.detailMode === "paper" && state.selectedPaperId &&
+            (edge.dataset.source === state.selectedPaperId || edge.dataset.target === state.selectedPaperId);
+          const selectedGroupRelation = state.detailMode === "group" &&
+            (selectedGroupPapers.has(edge.dataset.source) || selectedGroupPapers.has(edge.dataset.target));
+          edge.classList.toggle("focused", selectedRelation || selectedGroupRelation);
+          edge.classList.toggle("dim", dim && !(selectedRelation || selectedGroupRelation));
+        });
+
+        els.paperCount.textContent = String(data.papers.length);
+        els.brightCount.textContent = String(bright);
+        if (state.viewMode === "atlas") {
+          els.pathCount.textContent = String(overlapZoneById.size);
+          els.contextCountLabel.textContent = "zones";
+        } else {
+          els.pathCount.textContent = String(activePath?.papers.length || data.papers.length);
+          els.contextCountLabel.textContent = activePath ? "in path" : "in view";
+        }
+        els.emptyState.classList.toggle("visible", bright === 0);
+      }
+
+      function renderDetails() {
+        if (state.detailMode === "overlap" && overlapZoneById.has(state.selectedOverlapId)) {
+          renderOverlapDetails(overlapZoneById.get(state.selectedOverlapId));
+          return;
+        }
+        if (state.detailMode === "group" && routesById.has(state.selectedGroupId)) {
+          renderGroupDetails(routesById.get(state.selectedGroupId));
+          return;
+        }
+        renderPaperDetails();
+      }
+
+      function renderPaperDetails() {
+        const paper = paperById.get(state.selectedPaperId) || data.papers[0];
+        state.detailMode = "paper";
+        state.selectedPaperId = paper.id;
+        const relations = relationDetails(paper);
+        els.details.innerHTML = `
+          <h2>Selected Paper</h2>
+          <div class="details-title">${escapeHtml(paper.title)}</div>
+          <div class="detail-subtitle">
+            ${escapeHtml(paper.id)} / ${escapeHtml(paper.alias)} / ${escapeHtml(paper.citationKey)}<br>
+            ${escapeHtml(paper.author)} ${escapeHtml(paper.year)} · ${escapeHtml(paper.date)} · ${escapeHtml(paper.maturity)}
+          </div>
+          <div class="badge-row">
+            <span class="badge ${statusClass(paper.readingStatus)}">${escapeHtml(paper.readingStatus)}</span>
+            ${paper.tags.slice(0, 12).map((tag) => `<span class="badge">${escapeHtml(tag)}</span>`).join("")}
+          </div>
+          <div class="detail-block">
+            <h3>Why Read This</h3>
+            <p>${escapeHtml(paper.whyRead)}</p>
+          </div>
+          <div class="detail-block">
+            <h3>Summary</h3>
+            <p>${escapeHtml(paper.summary)}</p>
+          </div>
+          <div class="detail-block">
+            <h3>Route Role</h3>
+            <p>${escapeHtml(paper.routeRole)}</p>
+          </div>
+          <div class="detail-block">
+            <h3>All Labels</h3>
+            <div class="badge-row">${paper.tags.map((tag) => `<span class="badge">${escapeHtml(tag)}</span>`).join("")}</div>
+          </div>
+          <div class="detail-block">
+            <h3>Extraction Target</h3>
+            <p>${escapeHtml(paper.extraction)}</p>
+          </div>
+          <div class="detail-block">
+            <h3>Risk</h3>
+            <p>${escapeHtml(paper.risk)}</p>
+          </div>
+          ${paper.skipReason ? `<div class="detail-block"><h3>Skip Reason</h3><p>${escapeHtml(paper.skipReason)}</p></div>` : ""}
+          <div class="detail-block">
+            <h3>Links</h3>
+            <a class="link-button" href="${escapeAttribute(paper.link)}" target="_blank" rel="noreferrer">Open Source</a>
+            <button class="link-button" type="button" data-focus-paper="${escapeAttribute(paper.id)}">Focus On Map</button>
+          </div>
+          <div class="detail-block">
+            <h3>Relations</h3>
+            <div class="relation-list">${relations || `<p class="small-note">No explicit coverage or dependency links.</p>`}</div>
+          </div>
+        `;
+        els.details.querySelectorAll("[data-jump-paper]").forEach((button) => {
+          button.addEventListener("click", () => selectPaper(button.dataset.jumpPaper));
+        });
+        els.details.querySelectorAll("[data-focus-paper]").forEach((button) => {
+          button.addEventListener("click", () => focusPaper(button.dataset.focusPaper));
+        });
+      }
+
+      function renderGroupDetails(route) {
+        const ids = groupPaperIds(route.id);
+        const keyIds = (route.keyPaperIds || []).filter((id) => paperById.has(id));
+        const connected = connectedGroupIds(route.id);
+        els.details.innerHTML = `
+          <h2>Selected Group</h2>
+          <div class="details-title">${escapeHtml(route.label)}</div>
+          <div class="detail-subtitle">
+            ${escapeHtml(route.id)} · ${escapeHtml(route.type)} · ${ids.length} connected papers
+          </div>
+          <div class="badge-row">
+            <span class="badge">${escapeHtml(titleCase(route.type))}</span>
+            ${keyIds.slice(0, 6).map((id) => `<span class="badge">${escapeHtml(id)}</span>`).join("")}
+          </div>
+          <div class="detail-block">
+            <h3>What This Group Means</h3>
+            <p>${escapeHtml(route.description || "")}</p>
+          </div>
+          <div class="detail-block">
+            <h3>Why It Matters</h3>
+            <p>${escapeHtml(route.whyItMatters || "")}</p>
+          </div>
+          <div class="detail-block">
+            <h3>How To Read It</h3>
+            <p>${escapeHtml(route.readStrategy || "")}</p>
+          </div>
+          <div class="detail-block">
+            <h3>Main Bottleneck</h3>
+            <p>${escapeHtml(route.mainBottleneck || "")}</p>
+          </div>
+          <div class="detail-block">
+            <h3>Key Papers</h3>
+            <div>${keyIds.map((id) => relationButton(id)).join("") || `<p class="small-note">No key papers listed.</p>`}</div>
+          </div>
+          <div class="detail-block">
+            <h3>Connected Groups</h3>
+            <div>${connected.map((id) => groupButton(id)).join("") || `<p class="small-note">No connected group links.</p>`}</div>
+          </div>
+          <div class="detail-block">
+            <h3>Map Action</h3>
+            <button class="link-button" type="button" data-focus-group="${escapeAttribute(route.id)}">Focus On Map</button>
+          </div>
+        `;
+        els.details.querySelectorAll("[data-jump-paper]").forEach((button) => {
+          button.addEventListener("click", () => selectPaper(button.dataset.jumpPaper));
+        });
+        els.details.querySelectorAll("[data-jump-group]").forEach((button) => {
+          button.addEventListener("click", () => selectGroup(button.dataset.jumpGroup));
+        });
+        els.details.querySelectorAll("[data-focus-group]").forEach((button) => {
+          button.addEventListener("click", () => focusGroup(button.dataset.focusGroup));
+        });
+      }
+
+      function renderOverlapDetails(zone) {
+        const lens = currentLens();
+        const keyIds = zone.note?.keyPaperIds?.filter((id) => paperById.has(id)) || [...zone.papers].sort(readingSort).slice(0, 8).map((paper) => paper.id);
+        const warningPapers = zone.papers
+          .filter((paper) => paper.readingStatus === "Skim For Warning" || paper.tags.includes("Warning") || paper.coveredBy.length || paper.skipReason)
+          .sort(readingSort)
+          .slice(0, 8);
+        const setLabels = zone.setIds.map((id) => lens.sets.find((set) => set.id === id)?.label || id);
+        els.details.innerHTML = `
+          <h2>Selected Overlap</h2>
+          <div class="details-title">${escapeHtml(zone.note?.title || zone.label)}</div>
+          <div class="detail-subtitle">
+            ${escapeHtml(lens.label)} · ${escapeHtml(zone.kind)} · ${zone.papers.length} papers
+          </div>
+          <div class="badge-row">
+            ${setLabels.map((label) => `<span class="badge">${escapeHtml(label)}</span>`).join("") || `<span class="badge">Outside lens</span>`}
+          </div>
+          <div class="detail-block">
+            <h3>What This Overlap Means</h3>
+            <p>${escapeHtml(zone.description)}</p>
+          </div>
+          <div class="detail-block">
+            <h3>Why It Matters</h3>
+            <p>${escapeHtml(zone.note?.whyItMatters || "This zone shows papers that share the same active classification pattern, so it is a useful place to look for transferable ideas before building in one direction.")}</p>
+          </div>
+          <div class="detail-block">
+            <h3>Known Warning / Already Tried</h3>
+            <p>${escapeHtml(zone.note?.knownWarning || overlapWarningText(warningPapers))}</p>
+          </div>
+          <div class="detail-block">
+            <h3>Read First In This Overlap</h3>
+            <div>${keyIds.map((id) => relationButton(id)).join("") || `<p class="small-note">No papers in this zone yet.</p>`}</div>
+          </div>
+          <div class="detail-block">
+            <h3>Warning / Provenance Papers</h3>
+            <div>${warningPapers.map((paper) => relationButton(paper.id)).join("") || `<p class="small-note">No warning or supersession papers tagged in this zone.</p>`}</div>
+          </div>
+          <div class="detail-block">
+            <h3>Map Action</h3>
+            <button class="link-button" type="button" data-focus-overlap="${escapeAttribute(zone.id)}">Focus On Map</button>
+          </div>
+        `;
+        els.details.querySelectorAll("[data-jump-paper]").forEach((button) => {
+          button.addEventListener("click", () => selectPaper(button.dataset.jumpPaper));
+        });
+        els.details.querySelectorAll("[data-focus-overlap]").forEach((button) => {
+          button.addEventListener("click", () => focusOverlap(button.dataset.focusOverlap));
+        });
+      }
+
+      function overlapWarningText(warningPapers) {
+        if (!warningPapers.length) {
+          return "No explicit warning papers are tagged here yet; use the zone as an idea-discovery cluster rather than as evidence of feasibility.";
+        }
+        return `Start by checking ${warningPapers.map((paper) => paper.id).join(", ")} so known blockers or superseded work are not rediscovered.`;
+      }
+
+      function relationDetails(paper) {
+        const rows = [];
+        rows.push(relationRow("Read this instead", paper.coveredBy));
+        rows.push(relationRow("Method depends on", paper.dependsOn));
+        rows.push(relationRow("Read before", paper.readBefore));
+        const coveredThis = data.papers.filter((candidate) => candidate.coveredBy.includes(paper.id)).map((candidate) => candidate.id);
+        rows.push(relationRow("Older papers covered here", coveredThis));
+        return rows.filter(Boolean).join("");
+      }
+
+      function relationRow(label, ids) {
+        const valid = ids.filter((id) => paperById.has(id));
+        if (!valid.length) return "";
+        return `
+          <div class="relation-row">
+            <strong>${escapeHtml(label)}</strong>
+            <span>${valid.map((id) => relationButton(id)).join("")}</span>
+          </div>
+        `;
+      }
+
+      function relationButton(id) {
+        const paper = paperById.get(id);
+        return `<button class="link-button" type="button" data-jump-paper="${escapeAttribute(id)}">${escapeHtml(`${id} · ${paper.author} ${paper.year}`)}</button>`;
+      }
+
+      function groupButton(id) {
+        const route = routesById.get(id);
+        return `<button class="link-button" type="button" data-jump-group="${escapeAttribute(id)}">${escapeHtml(route.label)}</button>`;
+      }
+
+      function groupPaperIds(routeId) {
+        if (!routeId || !routesById.has(routeId)) return [];
+        const route = routesById.get(routeId);
+        const ids = new Set((route.keyPaperIds || []).filter((id) => paperById.has(id)));
+        data.papers.forEach((paper) => {
+          if (primaryGroupForPaper(paper) === routeId || paper.routeIds.includes(routeId)) {
+            ids.add(paper.id);
+          }
+        });
+        return [...ids];
+      }
+
+      function connectedGroupIds(routeId) {
+        const ids = new Set();
+        groupPaperIds(routeId).forEach((paperId) => {
+          const paper = paperById.get(paperId);
+          if (!paper) return;
+          paper.routeIds.forEach((id) => {
+            if (id !== routeId && routesById.has(id)) ids.add(id);
+          });
+          const primary = primaryGroupForPaper(paper);
+          if (primary !== routeId && routesById.has(primary)) ids.add(primary);
+        });
+        return [...ids].slice(0, 10);
+      }
+
+      function selectPaper(id) {
+        if (!paperById.has(id)) return;
+        state.detailMode = "paper";
+        state.selectedPaperId = id;
+        state.selectedGroupId = null;
+        state.selectedOverlapId = null;
+        renderDetails();
+        updateVisibility();
+      }
+
+      function selectGroup(id) {
+        if (!routesById.has(id)) return;
+        state.detailMode = "group";
+        state.selectedGroupId = id;
+        state.selectedOverlapId = null;
+        renderDetails();
+        updateVisibility();
+      }
+
+      function selectOverlap(id) {
+        if (!overlapZoneById.has(id)) return;
+        state.detailMode = "overlap";
+        state.selectedOverlapId = id;
+        state.selectedGroupId = null;
+        renderDetails();
+        updateVisibility();
+      }
+
+      function focusPaper(id) {
+        const position = paperPositions.get(id);
+        if (position) centerOn(position.cx, position.cy);
+      }
+
+      function focusGroup(id) {
+        const position = routePositions.get(id);
+        if (position) centerOn(position.x + position.w / 2, position.y + position.h / 2);
+      }
+
+      function focusOverlap(id) {
+        const position = overlapPositions.get(id);
+        if (position) centerOn(position.x + position.w / 2, position.y + position.h / 2);
+      }
+
+      function render() {
+        renderControls();
+        computeLayout();
+        renderNodes();
+        computeEdges();
+        renderEdges();
+        updateVisibility();
+        renderDetails();
+        applyTransform();
+      }
+
+      function resetFilters() {
+        state.viewMode = "atlas";
+        state.activeLens = defaultLensId;
+        state.activePath = "minimum";
+        state.selectedTags.clear();
+        state.selectedStatuses.clear();
+        state.selectedRoutes.clear();
+        state.search = "";
+        state.tagMode = "any";
+        state.showRelations = true;
+        state.showBackground = false;
+        state.detailMode = "paper";
+        state.selectedPaperId = "QRE-002";
+        state.selectedGroupId = null;
+        state.selectedOverlapId = null;
+        els.searchInput.value = "";
+        render();
+        fitStage();
+      }
+
+      function applyTransform() {
+        els.stage.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoom})`;
+      }
+
+      function fitStage() {
+        const viewport = els.viewport.getBoundingClientRect();
+        const stageW = currentStage.width;
+        const stageH = currentStage.height;
+        const scale = Math.min(viewport.width / stageW, viewport.height / stageH) * 0.96;
+        state.zoom = clamp(scale, 0.22, 1);
+        state.panX = Math.max(12, (viewport.width - stageW * state.zoom) / 2);
+        const topInset = state.viewMode === "atlas" ? 72 : 12;
+        state.panY = Math.max(topInset, (viewport.height - stageH * state.zoom) / 2);
+        applyTransform();
+      }
+
+      function zoomAt(factor, clientX, clientY) {
+        const rect = els.viewport.getBoundingClientRect();
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
+        const beforeX = (x - state.panX) / state.zoom;
+        const beforeY = (y - state.panY) / state.zoom;
+        state.zoom = clamp(state.zoom * factor, 0.28, 1.55);
+        state.panX = x - beforeX * state.zoom;
+        state.panY = y - beforeY * state.zoom;
+        applyTransform();
+      }
+
+      function centerOn(stageX, stageY) {
+        const rect = els.viewport.getBoundingClientRect();
+        state.panX = rect.width / 2 - stageX * state.zoom;
+        state.panY = rect.height / 2 - stageY * state.zoom;
+        applyTransform();
+      }
+
+      function setupEvents() {
+        els.viewOverlapAtlas.addEventListener("click", () => {
+          state.viewMode = "atlas";
+          state.detailMode = "paper";
+          state.selectedGroupId = null;
+          state.selectedOverlapId = null;
+          render();
+          fitStage();
+        });
+        els.viewRouteMap.addEventListener("click", () => {
+          state.viewMode = "route";
+          state.detailMode = "paper";
+          state.selectedGroupId = null;
+          state.selectedOverlapId = null;
+          render();
+          fitStage();
+        });
+        els.searchInput.addEventListener("input", () => {
+          state.search = els.searchInput.value;
+          render();
+        });
+        els.tagModeAny.addEventListener("click", () => {
+          state.tagMode = "any";
+          render();
+        });
+        els.tagModeAll.addEventListener("click", () => {
+          state.tagMode = "all";
+          render();
+        });
+        els.showRelations.addEventListener("click", () => {
+          state.showRelations = !state.showRelations;
+          render();
+        });
+        els.showBackground.addEventListener("click", () => {
+          state.showBackground = !state.showBackground;
+          render();
+        });
+        els.resetFilters.addEventListener("click", resetFilters);
+        els.wholeLandscapeButton.addEventListener("click", () => {
+          state.activePath = "all";
+          render();
+        });
+        els.fitButton.addEventListener("click", fitStage);
+        els.zoomInButton.addEventListener("click", () => zoomAt(1.18, els.viewport.clientWidth / 2, els.viewport.clientHeight / 2));
+        els.zoomOutButton.addEventListener("click", () => zoomAt(0.84, els.viewport.clientWidth / 2, els.viewport.clientHeight / 2));
+        els.viewport.addEventListener("wheel", (event) => {
+          event.preventDefault();
+          zoomAt(event.deltaY < 0 ? 1.08 : 0.92, event.clientX, event.clientY);
+        }, { passive: false });
+
+        let drag = null;
+        els.viewport.addEventListener("pointerdown", (event) => {
+          if (event.button !== 0) return;
+          if (event.target.closest(".paper-node, .route-node, .overlap-zone, .canvas-toolbar, button, input, a, summary")) return;
+          drag = { x: event.clientX, y: event.clientY, panX: state.panX, panY: state.panY };
+          els.viewport.classList.add("dragging");
+          els.viewport.setPointerCapture(event.pointerId);
+        });
+        els.viewport.addEventListener("pointermove", (event) => {
+          if (!drag) return;
+          state.panX = drag.panX + event.clientX - drag.x;
+          state.panY = drag.panY + event.clientY - drag.y;
+          applyTransform();
+        });
+        els.viewport.addEventListener("pointerup", () => {
+          drag = null;
+          els.viewport.classList.remove("dragging");
+        });
+        els.viewport.addEventListener("pointercancel", () => {
+          drag = null;
+          els.viewport.classList.remove("dragging");
+        });
+        window.addEventListener("resize", () => fitStage());
+      }
+
+      function titleCase(value) {
+        return value
+          .replace(/-/g, " ")
+          .replace(/\b\w/g, (letter) => letter.toUpperCase());
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function escapeAttribute(value) {
+        return escapeHtml(value).replace(/`/g, "&#096;");
+      }
+
+      function cssEscape(value) {
+        if (window.CSS && CSS.escape) return CSS.escape(value);
+        return String(value).replace(/[^a-zA-Z0-9_-]/g, "\\$&");
+      }
+
+      setupEvents();
+      render();
+      requestAnimationFrame(fitStage);
+    })();
+  </script>
+</body>
+</html>

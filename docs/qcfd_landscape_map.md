@@ -8,17 +8,30 @@ Companion documents:
 
 - `docs/research_grounding_and_plan.md`: source-of-truth bibliography, scan protocol, paper matrix, and miss audit.
 - `docs/implementation_plan.md`: dependency-ordered implementation plan and acceptance gates.
-- `docs/research_mind_map.html`: optional interactive explorer for filtering paper cards.
+- `docs/research_landscape_data.js`: structured paper graph with canonical IDs, aliases, tags, reading statuses, and supersession links.
+- `docs/research_mind_map.html`: local interactive explorer for reading paths, filters, and paper details.
 
 ## How To Read This Map
 
-Start with the resource claims and warnings (`QRE1`-`QRE5`). They define what would count as a meaningful fault-tolerant result and what assumptions can make a claim collapse.
+Start with `docs/research_mind_map.html` in the default `Minimum Reading Path` view. It keeps route-setting papers bright, dims older/reference papers, and opens full title, summary, extraction target, risk, tags, and read-instead/read-before links when a paper is clicked.
+
+For the static map below, start with the resource claims and warnings (`QRE1`-`QRE5`). They define what would count as a meaningful fault-tolerant result and what assumptions can make a claim collapse. Canonical structured IDs are zero-padded (`QRE-001`), while this wiki keeps short aliases (`QRE1`) for readability.
 
 Next inspect the I/O and encoding layer (`IO4`, `IO5`, `IO1`, `IO2`, `IO3`, `WATCH1`). Every route below depends on state preparation, encoding, observable extraction, and the cost of repeated measurements.
 
 Then choose a route family. LBM/QLBM is one family, but it is not the only one. Pressure-Poisson/QLSA, Carleman/linearization, Schrodinger-Navier-Stokes, Koopman-von Neumann, stochastic, noisy nonlinear dynamics, and homotopy routes all need separate treatment.
 
 Finally compare FTQC readiness against near-term evidence. Hardware demos are useful for circuits, loading, and readout intuition, but they do not by themselves establish fault-tolerant resource advantage.
+
+Use the reading-status fields instead of numeric scores:
+
+- `Read First`: read fully for current project decisions.
+- `Read With`: read beside a named core paper.
+- `Read If Building`: read only after choosing that route.
+- `Skim For Warning`: read caveats and conclusions first.
+- `Reference Only`: consult when needed.
+- `Covered By Newer`: keep for provenance, usually skip first.
+- `Watch`: track but do not route around yet.
 
 ## Diagram Legend
 
@@ -459,6 +472,7 @@ flowchart LR
 | Treat hardware demos as evidence, not final resource estimates. | Near-term results inform circuit shape and noise/readout risks, then get translated into FTQC assumptions separately. | `LBM1`, `LBM2`, `IO2`, `WATCH2`, `PRIM5`, `PRIM6` |
 | Compare multiple nonlinear strategies before choosing LBM by default. | LBM is central, but SNS, Carleman, KvN, stochastic, noisy, homotopy, LCHS/turbulence, and QLSA routes must be represented. | `CAR1`, `CAR2`, `CAR3`, `CAR4`, `CAR10`, `CAR11`, `QRE5`, `QLSA1`, `QLSA2` |
 | Use multi-label filtering, not ID prefixes, for paper selection. | A paper such as `QRE2` is also `LBM`, `FTQC`, `Resource-Estimation`, `Readout`, and `Observable-Selection`; route cards must copy all relevant labels. | `docs/research_grounding_and_plan.md` |
+| Do not read older papers first when they are marked `Covered By Newer`. | Use the newer covering paper for the first pass, then open the older paper only for provenance, proofs, or implementation details that the newer paper omits. | `LBM6` covered by `LBM3`; `PRIM4` covered operationally by `PRIM6`; `SURV3` covered for encoding by `IO5` |
 | Older primitives stay only when newer papers depend on them. | Foundations are not reading priorities unless needed for a current route card. | `PRIM1`, `PRIM2`, `PRIM3`, `PRIM4`, `CAR6`, `CAR9` |
 
 ## Known Gaps And Update Protocol
@@ -473,8 +487,9 @@ Known gaps to keep visible:
 
 Update protocol:
 
-1. Add any new paper to `docs/research_grounding_and_plan.md` first with ID, date/revision, priority, maturity, route, extraction, risk, and inclusion reason.
-2. Assign all relevant multi-label tags in the Paper Multi-Label Matrix, including formulation, method, I/O, resource/hardware, benchmark/observable, and status labels.
-3. If it is `P0` or `P1`, add it to this landscape map in both a diagram and a branch/maturity table.
-4. If it changes implementation order, update `docs/implementation_plan.md`.
-5. Record why it was found or missed in the bibliography miss-audit notes. Search terms should include the route term, CFD term, and bottleneck term, for example `homotopy Navier-Stokes quantum`, `stochastic nonlinear differential equations quantum fluid`, `encoding quantum CFD`, `readout lattice Boltzmann quantum`, `Koopman von Neumann fluid quantum`, and `pressure Poisson HHL Navier-Stokes`.
+1. Add any new paper to `docs/research_grounding_and_plan.md` first with canonical ID, alias, citation key, date/revision, maturity, reading status, route, extraction, risk, and inclusion reason.
+2. Add the same paper to `docs/research_landscape_data.js` with title, link, click-summary, tags, route IDs, and any `coveredBy`, `dependsOn`, `readBefore`, or `skipReason` fields.
+3. Assign all relevant multi-label tags in the Paper Multi-Label Matrix, including formulation, method, I/O, resource/hardware, benchmark/observable, and status labels.
+4. If it is `Read First`, `Read With`, or route-setting `Read If Building`, add it to this landscape map in both a diagram and a branch/maturity table.
+5. If it changes implementation order, update `docs/implementation_plan.md`.
+6. Record why it was found or missed in the bibliography miss-audit notes. Search terms should include the route term, CFD term, and bottleneck term, for example `homotopy Navier-Stokes quantum`, `stochastic nonlinear differential equations quantum fluid`, `encoding quantum CFD`, `readout lattice Boltzmann quantum`, `Koopman von Neumann fluid quantum`, and `pressure Poisson HHL Navier-Stokes`.

@@ -10,7 +10,8 @@ Companion documents:
 
 - `docs/qcfd_landscape_map.md`: start-here route-map wiki with Mermaid diagrams.
 - `docs/implementation_plan.md`: dependency-ordered implementation plan and acceptance gates.
-- `docs/research_mind_map.html`: optional interactive branch map of the active papers.
+- `docs/research_landscape_data.js`: structured graph data with canonical IDs, aliases, citation keys, tags, reading statuses, group explanations, and paper-to-paper relations.
+- `docs/research_mind_map.html`: primary interactive reading landscape for explaining the corpus, filtering papers, and navigating paper/group relationships.
 
 ## Decision Rules
 
@@ -63,9 +64,18 @@ Additional recurring search terms:
 - `collision operator`, `denoising collision`, `surrogate collision`, `dynamic circuits`, `irreversible`, `reinitialization`, `no reinitialization`, `observable extraction`.
 - `rapidly distorted turbulence`, `Reynolds stress`, `velocity spectrum`, `non-trivial incompressible flows`, `flow past a cylinder`, `inlets`, `outlets`, `external forcing`.
 
-## Labeling And Priority Scheme
+## Labeling, Reading Status, And Tags
 
-The stable ID prefix is only a citation handle, not a complete classification. Papers must also carry multi-label tags so that one paper can be filtered as, for example, `LBM`, `FTQC`, `Resource-Estimation`, `Encoding-Strategy`, and `Readout` at the same time. The user's `Carlman` label is normalized to `Carleman`; keep `Carlman` only as a search alias, not as a canonical tag.
+The stable ID is only a citation handle, not a priority score and not a complete classification. Reading priority belongs in explicit reading-status fields and supersession links, because the right reading order can change while citations must remain stable.
+
+Canonical ID policy:
+
+- Use zero-padded canonical IDs in structured data and future route cards: `QRE-002`, `LBM-014`, `CAR-009`, `IO-005`.
+- Preserve short aliases for human notes and older docs: `QRE2`, `LBM14`, `CAR9`, `IO5`.
+- Add citation keys for citation-manager use and unambiguous cross-reference: `Jennings2025BoundedQLBM`, `Kosel2026EncodingResources`.
+- Do not encode priority, route confidence, or read order inside the ID. A paper can move from `Read If Building` to `Covered By Newer` without changing its ID.
+
+Papers must also carry multi-label tags so that one paper can be filtered as, for example, `LBM`, `FTQC`, `Resource-Estimation`, `Encoding-Strategy`, and `Readout` at the same time. The user's `Carlman` label is normalized to `Carleman`; keep `Carlman` only as a search alias, not as a canonical tag.
 
 Role labels:
 
@@ -78,6 +88,31 @@ Role labels:
 - `SURV*`: reviews and taxonomies.
 - `WATCH*`: adjacent papers worth tracking but not yet central to FTQC CFD resource estimation.
 
+Reading-status labels:
+
+- `Read First`: current route-setting paper; read fully before making project decisions.
+- `Read With`: companion paper that should be read beside another core paper rather than before it.
+- `Read If Building`: required only when implementing, reproducing, or comparing that route.
+- `Skim For Warning`: read conclusions, assumptions, and caveats early; only read fully if the warning blocks a route.
+- `Reference Only`: foundational or older paper; consult sections as needed.
+- `Covered By Newer`: retained for provenance but normally skipped because a newer paper absorbs the useful lesson.
+- `Watch`: adjacent paper to track, not part of the current reading path.
+
+Relationship fields:
+
+- `covered_by`: newer paper(s) that absorb the older paper's key lesson for this project.
+- `depends_on`: older paper or primitive needed for methods, assumptions, or resource accounting.
+- `read_before`: paper that should be read first when a newer paper is not self-contained.
+- `skip_reason`: short explanation for why a paper can be deferred.
+
+Efficient reading rules:
+
+- A newer paper does not automatically replace an older paper; it replaces it only when it covers the assumptions the project needs.
+- Older foundational papers remain visible, but default to `Reference Only` unless a current route explicitly depends on them.
+- `Covered By Newer` means "keep for provenance, skip at first pass."
+- `Read If Building` means "do not spend time now unless this route is selected."
+- The interactive map is the fastest way to see what remains bright for a given tag, route, or reading path.
+
 Canonical multi-label vocabulary:
 
 - Formulation labels: `LBM`, `QLBM`, `LBE`, `ADE`, `Navier-Stokes`, `Pressure-Poisson`, `Boltzmann`, `Lattice-Gas`, `Lattice-Kinetic-Scheme`, `SPH`, `Vortex`, `Vortex-Method`, `Turbulence`, `Rapid-Distortion-Theory`, `Spectral`, `D2Q9`, `Streamfunction-Vorticity`, `PDE`, `ODE`, `Stochastic-PDE`.
@@ -89,24 +124,27 @@ Canonical multi-label vocabulary:
 
 When a repeated tag is missing from this vocabulary, add it here before using it broadly in the matrix.
 
-Priority labels:
+Legacy priority labels:
 
-- `P0`: read now; latest core paper that changes route choice, resources, data loading, readout, or feasibility.
-- `P1`: read before implementing the corresponding route.
-- `P2`: read when testing a specific benchmark or alternative.
-- `P3`: older foundation/reference; read only when needed by a route.
-- `Watch`: adjacent/latest paper that may matter later but does not yet change the FTQC CFD roadmap.
+The old `P0`-`P3` labels are kept in the matrix only as a rough legacy cue. They should not be used as scores. The project reading order is now determined by reading status plus `covered_by`, `depends_on`, and `read_before` links in `docs/research_landscape_data.js`.
 
-## First Reading Path
+## Minimum Reading Path
 
-Read in this order before adding new code:
+Read this shortest decision path before adding new quantum/resource code:
 
-1. Full-stack claims and warnings: `QRE1`, `QRE2`, `QRE3`, `QRE4`, `QRE5`.
-2. Latest LBM family: `LBM1`, `LBM2`, `LBM3`, `LBM4`, `LBM5`, `LBM8`, `LBM9`, `LBM10`, `LBM11`, `LBM12`.
-3. Input/output bottlenecks: `IO1`, `IO2`, `IO3`, `IO4`, `IO5`.
-4. Alternative nonlinear embeddings: `CAR1`, `CAR2`, `CAR3`, `CAR4`, `CAR10`, `CAR11`, with `CAR9` as the warning paper.
-5. Pressure-Poisson/QLSA route: `QLSA1`.
-6. Foundations only as needed: `PRIM1`, `PRIM2`, `PRIM3`, `PRIM4`.
+1. Full-stack claims and warnings: `QRE-001/QRE1`, `QRE-002/QRE2`, `QRE-003/QRE3`, `QRE-005/QRE5`.
+2. Read with the LBM route-setter: `QRE-004/QRE4`, after `QRE-002/QRE2`.
+3. Input/output gates: `IO-004/IO4`, `IO-005/IO5`, `IO-001/IO1`, `IO-002/IO2`.
+4. Nonlinear alternatives that can change route choice: `CAR-001/CAR1`, `CAR-011/CAR11`.
+5. Pressure-Poisson/QLSA alternative: `QLSA-001/QLSA1`.
+
+After that, use route-specific paths in `docs/research_mind_map.html`:
+
+- `LBM / QLBM`: LBM-family route selection and collision/readout assumptions.
+- `Carleman / nonlinear`: nonlinear embeddings, stochastic/noisy routes, and warnings.
+- `QLSA / pressure-Poisson`: pressure solves and linear-system alternatives.
+- `Encoding and readout`: state preparation, loading, and observable extraction.
+- `Resource tooling`: Qualtran/Azure-style logical and physical estimates.
 
 ## Core And Reference Matrix
 
@@ -217,6 +255,57 @@ Roadmap labels use HTML `abbr` tooltips where the renderer supports them. This t
 | PRIM4 | Fowler 2012; surface codes; 2012-09-18; P3; QEC baseline. |
 | PRIM5 | Harrigan 2024; Qualtran; 2024-09-06; P1; logical resources. |
 | PRIM6 | van Dam 2023 / Microsoft docs; Azure Resource Estimator; docs 2026-01-29; P1; physical resources. |
+| IO6 | Schalkers 2024; momentum exchange method; Read With; drag/force readout. |
+| IO7 | Schalkers 2023; Boltzmann encoding warning; Read With; encoding costs. |
+| PRIM7 | Budinski 2023; quantum basis-state shift; Read If Building; streaming primitive. |
+| PRIM8 | Georgescu 2024; qlbm software framework; Read If Building; tooling. |
+| LBM15 | Schalkers 2022/2024; fail-safe transport; Read If Building; streaming/boundaries. |
+| LBM16 | Kocherla 2023; mesoscale PDE algorithm; Reference Only; older lattice-gas provenance. |
+| LBM17 | Budinski 2021; streamfunction-vorticity QLBM; Covered By Newer; read LBM13/QRE4 first. |
+| LBM18 | Xu 2025; improved ADE QLBM; Read If Building; linear collision/no reinitialization. |
+| LBM19 | Bastida-Zamora 2025; floating-point LGA; Watch; adjacent QLGA route. |
+| LBM20 | Jawetz 2025; phase-change QLBM; Watch; thermal-flow branch. |
+| LBM21 | Georgescu 2025; quantum search in QLGA/LBM; Watch; selected-event idea. |
+| LBM22 | Fonio 2025; adaptive LGA; Watch; adaptive collision branch. |
+| LBM23 | Itani 2023; nonlinear QALB; Read If Building; collision strategy. |
+| LBM24 | Georgescu 2025; QLGA building blocks; Read If Building; basis-encoded lattice circuits. |
+| LBM25 | Bastida-Zamora 2024; efficient QLGA; Reference Only; foundation for LBM24. |
+| LBM26 | Kumar 2024; unitary LBM; Read If Building; low-Re unitary embedding. |
+| LBM27 | Fonio 2023; LGCA invariants/QPE; Reference Only; collision vocabulary. |
+| LBM28 | Love 2019; quantum hydrodynamic LGA; Reference Only; older foundation. |
+| LBM29 | Bastida-Zamora 2025; local Carleman QLBM; Read If Building; multi-step route. |
+| LBM30 | Budinski 2021; ADE QLBM; Covered By Newer; read LBM4/LBM11/LBM18 first. |
+| CAR12 | Sanavio 2024/2025; ADR explicit circuit; Skim For Warning; circuit blow-up. |
+| CAR13 | Turro 2025; industrial Carleman-LBM; Read If Building; applied CLBM route. |
+| CAR14 | Zhang 2025; quantum Koopman dynamics; Watch; data-driven nonlinear branch. |
+| CAR15 | Sanavio 2025; Carleman-LBM matrix oracles; Read If Building; oracle/loading costs. |
+| QLSA3 | Yao 2025; multi-ansatz VQLS compressible flow; Watch; near-term/hybrid branch. |
+| WATCH3 | Meng 2024; superconducting unsteady flows; Watch; hardware demonstration context. |
+| LBM31 | Yepez 2002; early quantum lattice gas; Reference Only; historical foundation. |
+| CAR16 | Itani 2021; Carlemann linearization of LBM; Reference Only; older CLBM derivation. |
+| CAR17 | Succi 2023; ensemble fluid simulations; Watch; functional-Liouville route. |
+| SURV5 | Succi 2023; quantum computing for fluids survey; Reference Only; older orientation. |
+| CAR18 | Sanavio 2024; Carleman-Grad approach; Read If Building; Grad route. |
+| PRIM9 | Bharadwaj 2024; compact time-dependent PDE algorithms; Read If Building; LCU/PDE primitive. |
+| WATCH4 | Song 2024; hybrid NSE on noisy hardware; Watch; near-term context. |
+| CAR19 | Gonzalez-Conde 2024; Carleman efficiency in nonlinear fluids; Skim For Warning; regime limits. |
+| SURV6 | Sanavio 2024; fluid simulation review chapter; Reference Only; Carleman/LBM orientation. |
+| LBM32 | Wawrzyniak 2024; unitary LBM; Covered By Newer; read LBM10/LBM11/LBM18 first. |
+| LBM33 | Tiwari 2025; realizable QLBM advances; Read If Building; hardware-oriented QLBM. |
+| PRIM10 | Gaidai 2025; sparse amplitude permutation gates; Read If Building; sparse loading primitive. |
+| CAR20 | Novikau 2025; globalized Carleman embedding; Read If Building; convergence workaround. |
+| PRIM11 | Zecchi 2025; amplitude amplification for transport; Skim For Warning; OAA/success-probability caveat. |
+| PRIM12 | Kerppo 2025; entanglement-minimized state preparation; Watch; speculative loading primitive. |
+| WATCH5 | Yang 2025; scalar-convection quantum noise; Skim For Warning; near-term flow noise. |
+| CAR21 | Wu 2025; physics-informed effective Hamiltonians for nonlinear DEs; Watch; adjacent nonlinear route. |
+| LBM34 | Itani 2025; QML LBM collision operators; Watch; learned collision branch. |
+| IO8 | Mello 2025; Magic of the Well; Read With; fluid-data quantum resources. |
+| QLSA4 | Chen 2024; large-scale near-term fluid simulations; Watch; QLS/hybrid CFD. |
+| QLSA5 | Sagai 2024; VQLS scalability for CFD; Watch; variational linear solver branch. |
+| QLSA6 | Ye 2024; hybrid quantum-classical CFD framework; Watch; hybrid CFD branch. |
+| WATCH6 | Jaksch 2022; VQA for CFD; Reference Only; near-term VQA foundation. |
+| CAR22 | Meng 2023; hydrodynamic Schrodinger equation fluids; Watch; HSE route. |
+| PRIM13 | Bravyi 2024; high-threshold quantum memory; Reference Only; QEC background. |
 
 ## Paper Multi-Label Matrix
 
@@ -273,10 +362,173 @@ Use this table for filtering. The ID remains stable even when a paper receives m
 | PRIM4 | `Error-Correction`; `Surface-Code`; `Physical-Resources`; `FTQC`; `Foundation`; `Peer-Reviewed` |
 | PRIM5 | `Tooling`; `Qualtran`; `Logical-Resources`; `Gate-Counts`; `T-Count`; `Circuit-Depth`; `Foundation`; `Preprint` |
 | PRIM6 | `Tooling`; `Azure-Resource-Estimator`; `Physical-Resources`; `Error-Correction`; `Surface-Code`; `T-Factories`; `Foundation` |
+| IO6 | `LBM`; `QLBM`; `Readout`; `QoI-Extraction`; `Momentum-Exchange`; `Drag`; `Boundary-Conditions`; `Observable-Selection`; `Preprint` |
+| IO7 | `LBM`; `QLBM`; `Encoding-Strategy`; `Qubit-Encoding`; `Velocity-Encoding`; `Streaming`; `Collision`; `Unitarity-Warning`; `Preprint` |
+| PRIM7 | `Quantum-Walk`; `Basis-State-Shift`; `Streaming`; `Gate-Counts`; `Circuit-Depth`; `Resource-Reduction`; `Preprint` |
+| PRIM8 | `Tooling`; `Software`; `Benchmarking`; `LBM`; `QLBM`; `Boundary-Conditions`; `Gate-Counts`; `Preprint` |
+| LBM15 | `Transport`; `LBM`; `QLBM`; `FTQC`; `Gate-Counts`; `Streaming`; `Boundary-Conditions`; `Peer-Reviewed` |
+| LBM16 | `Lattice-Gas`; `LBM`; `ADE`; `Burgers`; `Near-Term-Hardware`; `State-Preparation`; `Foundation`; `Preprint` |
+| LBM17 | `LBM`; `QLBM`; `Navier-Stokes`; `Streamfunction-Vorticity`; `Boundary-Conditions`; `Foundation`; `Preprint` |
+| LBM18 | `LBM`; `QLBM`; `ADE`; `Linear-Collision`; `No-Reinitialization`; `Tomography-Avoidance`; `Readout`; `Preprint` |
+| LBM19 | `Lattice-Gas`; `QLGA`; `LBM`; `Collision`; `Nonlinear-Fluid-Dynamics`; `Watch`; `Preprint` |
+| LBM20 | `LBM`; `QLBM`; `Heat-Transfer`; `Phase-Change`; `Thermal-Flow`; `Hybrid`; `Watch`; `Preprint` |
+| LBM21 | `QLGA`; `LBM`; `Quantum-Search`; `QAE`; `Observable-Selection`; `Tomography-Avoidance`; `Watch`; `Preprint` |
+| LBM22 | `Lattice-Gas`; `QLGA`; `Linear-Collision`; `Measurement-Reinitialization`; `Adaptive-Collision`; `Watch`; `Preprint` |
+| LBM23 | `LBM`; `QLBM`; `QALB`; `Navier-Stokes`; `Nonlinear-Collision`; `Carleman`; `BGK`; `Gate-Counts`; `Preprint` |
+| LBM24 | `QLGA`; `LBM`; `Basis-Encoding`; `Boundary-Conditions`; `Collision`; `Readout`; `Gate-Counts`; `Preprint` |
+| LBM25 | `QLGA`; `Lattice-Gas`; `Near-Term-Hardware`; `Gate-Counts`; `Circuit-Depth`; `Foundation`; `Preprint` |
+| LBM26 | `LBM`; `QLBM`; `Linearization`; `SVD`; `Low-Re`; `Gate-Counts`; `Preprint` |
+| LBM27 | `LGCA`; `QLGA`; `Collision`; `QPE`; `Quantum-Walk`; `Invariants`; `Foundation`; `Preprint` |
+| LBM28 | `Lattice-Gas`; `QLGA`; `Foundation`; `Unitarity-Warning`; `Peer-Reviewed` |
+| LBM29 | `LBM`; `QLBM`; `Carleman`; `Dynamic-Circuit`; `Multi-Step`; `Collision`; `No-Reinitialization`; `Preprint` |
+| LBM30 | `ADE`; `LBM`; `QLBM`; `Foundation`; `Peer-Reviewed` |
+| CAR12 | `Carleman`; `ADE`; `ADR`; `Block-Encoding`; `Sparse-Oracles`; `Circuit-Depth`; `Gate-Counts`; `Warning`; `Peer-Reviewed` |
+| CAR13 | `Carleman`; `LBM`; `QLSA`; `HHL`; `Industrial-CFD`; `Boundary-Conditions`; `Hybrid`; `Peer-Reviewed` |
+| CAR14 | `Koopman`; `Quantum-ML`; `Turbulence`; `Shear-Flow`; `Nonlinear-Dynamics`; `Watch`; `Preprint` |
+| CAR15 | `Carleman`; `LBM`; `Block-Encoding`; `Matrix-Oracles`; `Sparse-Oracles`; `Data-Loading`; `Success-Probability`; `Preprint` |
+| QLSA3 | `VQLS`; `QLSA`; `Compressible-Flow`; `Hybrid`; `Near-Term-Hardware`; `Watch`; `Preprint` |
+| WATCH3 | `Near-Term-Hardware`; `Superconducting`; `Schrodinger-Navier-Stokes`; `Vortex`; `Compressible-Flow`; `Watch`; `Preprint` |
+| LBM31 | `QLGA`; `Lattice-Gas`; `Foundation`; `Quantum-Walk`; `Peer-Reviewed` |
+| CAR16 | `Carleman`; `LBM`; `LBE`; `BGK`; `Collision`; `Variable-Blowup`; `Foundation`; `Preprint` |
+| CAR17 | `Functional-Liouville`; `Turbulence`; `PDE`; `Logical-Resources`; `Noisy-Dynamics`; `Watch`; `Peer-Reviewed` |
+| SURV5 | `Review`; `Quantum-CFD`; `LBM`; `Carleman`; `Lattice-Gas`; `Foundation`; `Peer-Reviewed` |
+| CAR18 | `Carleman`; `Grad`; `Navier-Stokes`; `LBE`; `QLSA`; `Convergence`; `Preprint` |
+| PRIM9 | `PDE`; `LCU`; `Nonunitary`; `QLSA`; `Resource-Estimation`; `Circuit-Depth`; `Peer-Reviewed` |
+| WATCH4 | `Navier-Stokes`; `Hybrid`; `Near-Term-Hardware`; `Hardware-Noise`; `Noisy-Dynamics`; `Watch`; `Peer-Reviewed` |
+| CAR19 | `Carleman`; `Navier-Stokes`; `Nonlinear-Dynamics`; `Convergence`; `Resource-Estimation`; `Warning`; `Peer-Reviewed` |
+| SURV6 | `Review`; `Carleman`; `LBM`; `Quantum-CFD`; `Foundation` |
+| LBM32 | `LBM`; `QLBM`; `ADE`; `Linearization`; `No-Reinitialization`; `Dynamic-Circuit`; `Foundation`; `Preprint` |
+| LBM33 | `LBM`; `QLBM`; `Encoding-Strategy`; `Readout`; `Circuit-Depth`; `Near-Term-Hardware`; `Benchmarking`; `Peer-Reviewed` |
+| PRIM10 | `State-Preparation`; `Data-Loading`; `Sparse-State-Preparation`; `Amplitude-Permutation`; `Clustered-State`; `Gate-Counts`; `Peer-Reviewed` |
+| CAR20 | `Carleman`; `Nonlinear-Dynamics`; `Convergence`; `Piecewise-Linearization`; `Warning`; `Preprint` |
+| PRIM11 | `Transport`; `ADE`; `Amplitude-Amplification`; `Nonunitary`; `Success-Probability`; `Warning`; `Peer-Reviewed` |
+| PRIM12 | `State-Preparation`; `Data-Loading`; `Entanglement-Reduction`; `Gate-Counts`; `Near-Term-Hardware`; `Watch`; `Preprint` |
+| WATCH5 | `Scalar-Convection`; `Near-Term-Hardware`; `Hardware-Noise`; `Noise-Modeling`; `Artificial-Diffusion`; `Warning`; `Peer-Reviewed` |
+| CAR21 | `Nonlinear-Dynamics`; `Effective-Hamiltonian`; `QSVT`; `Chebyshev`; `Ground-State-Preparation`; `Watch`; `Preprint` |
+| LBM34 | `LBM`; `QLBM`; `QML`; `Surrogate-Collision`; `Nonlinear-Collision`; `Amplitude-Encoding`; `Watch`; `Preprint` |
+| IO8 | `Encoding-Strategy`; `Data-Loading`; `State-Preparation`; `Tensor-Network`; `Magic`; `Non-Stabilizerness`; `Data-Complexity`; `Readout`; `Preprint` |
+| QLSA4 | `QLSA`; `Hybrid`; `Near-Term-Hardware`; `CFD`; `Resource-Estimation`; `Watch`; `Peer-Reviewed` |
+| QLSA5 | `VQLS`; `QLSA`; `CFD`; `Near-Term-Hardware`; `Hybrid`; `Benchmarking`; `Watch`; `Preprint` |
+| QLSA6 | `QLSA`; `Hybrid`; `Near-Term-Hardware`; `CFD`; `Poiseuille`; `Benchmarking`; `Watch`; `Peer-Reviewed` |
+| WATCH6 | `VQA`; `CFD`; `Hybrid`; `Near-Term-Hardware`; `Foundation`; `Peer-Reviewed` |
+| CAR22 | `Hydrodynamic-Schrodinger`; `Schrodinger-Navier-Stokes`; `Vortex`; `Near-Term-Hardware`; `Hybrid`; `Watch`; `Peer-Reviewed` |
+| PRIM13 | `FTQC`; `Quantum-Memory`; `Error-Correction`; `Physical-Resources`; `Foundation`; `Peer-Reviewed` |
+
+## Connected Papers BibTeX Audit
+
+Source file: `References/ConnectedPapers-for-Resource-Implications-of-Different-Encodings-for-Quantum-Computational-Fluid-Dynamics.bib`.
+
+Audit result: 41 BibTeX records were checked against the bibliography and the interactive landscape. The relevant missing papers below have been added to `docs/research_landscape_data.js`; duplicate records were merged into a single canonical paper ID; classical-only LBM background papers remain excluded from the QCFD resource-estimation corpus.
+
+### Added From BibTeX
+
+| ID | Paper | Reading status | Why included | Main labels |
+| --- | --- | --- | --- | --- |
+| IO6 | Schalkers 2024 - Momentum exchange method for quantum Boltzmann methods | Read With | Adds concrete lift/drag/force readout logic for QLBM routes. | `LBM`; `QLBM`; `Readout`; `Momentum-Exchange`; `Drag`; `Boundary-Conditions` |
+| IO7 | Schalkers 2023 - On the importance of data encoding in quantum Boltzmann methods | Read With | Explains why Boltzmann encoding choice changes streaming, collision, and measurement costs. | `LBM`; `QLBM`; `Encoding-Strategy`; `Qubit-Encoding`; `Velocity-Encoding`; `Unitarity-Warning` |
+| PRIM7 | Budinski 2023 - Efficient parallelization of quantum basis state shift | Read If Building | Circuit primitive for computational-basis lattice streaming shifts. | `Basis-State-Shift`; `Streaming`; `Gate-Counts`; `Circuit-Depth`; `Resource-Reduction` |
+| PRIM8 | Georgescu 2024 - qlbm software framework | Read If Building | Tooling layer for reproducible QLBM circuit construction. | `Tooling`; `Software`; `Benchmarking`; `LBM`; `QLBM`; `Boundary-Conditions` |
+| LBM15 | Schalkers 2022/2024 - Efficient and fail-safe quantum algorithm for the transport equation | Read If Building | Transport primitive needed when building streaming/boundary circuits. | `Transport`; `LBM`; `QLBM`; `Streaming`; `Boundary-Conditions`; `FTQC` |
+| LBM16 | Kocherla 2023 - Fully quantum algorithm for mesoscale fluid simulations with application to PDEs | Reference Only | Older mesoscale/lattice-gas route retained for provenance. | `Lattice-Gas`; `LBM`; `ADE`; `Burgers`; `State-Preparation` |
+| LBM17 | Budinski 2021 - NSE using streamfunction-vorticity and LBM | Covered By Newer | Original route now better read through newer QLBM-frugal and realistic-flow papers. | `LBM`; `QLBM`; `Navier-Stokes`; `Streamfunction-Vorticity`; `Boundary-Conditions` |
+| LBM18 | Xu 2025 - Improved QLBM for ADE with a linear collision model | Read If Building | Current ADE/no-reinitialization branch for linear-collision benchmarks. | `LBM`; `QLBM`; `ADE`; `Linear-Collision`; `No-Reinitialization`; `Readout` |
+| LBM19 | Bastida-Zamora 2025 - Lattice gas automata with floating-point numbers | Watch | Adjacent QLGA formulation; useful only if floating-point lattice-gas routes matter. | `Lattice-Gas`; `QLGA`; `LBM`; `Collision`; `Watch` |
+| LBM20 | Jawetz 2025 - QLBM for heat transfer with phase change | Watch | Thermal/phase-change branch, outside the current FTQC resource path. | `LBM`; `QLBM`; `Heat-Transfer`; `Phase-Change`; `Thermal-Flow` |
+| LBM21 | Georgescu 2025 - Quantum search in superposed QLGA and LBM systems | Watch | Possible selected-event/search idea for lattice systems. | `QLGA`; `LBM`; `Quantum-Search`; `QAE`; `Observable-Selection` |
+| LBM22 | Fonio 2025 - Adaptive lattice-gas algorithm | Watch | Adaptive lattice-gas design branch, not yet route-setting. | `Lattice-Gas`; `QLGA`; `Adaptive-Collision`; `Measurement-Reinitialization` |
+| LBM23 | Itani 2023 - QALB incompressible fluids with nonlinear collision | Read If Building | Direct nonlinear-collision QLBM route for comparing collision strategies. | `LBM`; `QLBM`; `QALB`; `Nonlinear-Collision`; `Carleman`; `BGK` |
+| LBM24 | Georgescu 2025 - Fully quantum lattice gas automata building blocks | Read If Building | Current basis-encoding QLGA/QLBM building-block reference. | `QLGA`; `Basis-Encoding`; `Boundary-Conditions`; `Collision`; `Readout`; `Gate-Counts` |
+| LBM25 | Bastida-Zamora 2024 - Efficient quantum lattice gas automata | Reference Only | Foundation for newer QLGA building-block papers. | `QLGA`; `Lattice-Gas`; `Gate-Counts`; `Circuit-Depth`; `Foundation` |
+| LBM26 | Kumar 2024 - Unitary matrix representation of LBM | Read If Building | Unitary-embedding LBM branch for low-Re flow comparisons. | `LBM`; `QLBM`; `Linearization`; `SVD`; `Low-Re`; `Gate-Counts` |
+| LBM27 | Fonio 2023 - Quantum collision circuit, invariants, and QPE for LGCA | Reference Only | Collision/invariant vocabulary for QLGA papers. | `LGCA`; `QLGA`; `Collision`; `QPE`; `Invariants`; `Foundation` |
+| LBM28 | Love 2019 - Quantum extensions of hydrodynamic LGA | Reference Only | Older conceptual foundation for quantum hydrodynamic LGA. | `Lattice-Gas`; `QLGA`; `Foundation`; `Unitarity-Warning` |
+| LBM29 | Bastida-Zamora 2025 - Multi-step local Carleman QLBM | Read If Building | Multi-step QLBM route using local Carleman linearization. | `LBM`; `QLBM`; `Carleman`; `Dynamic-Circuit`; `Multi-Step`; `No-Reinitialization` |
+| LBM30 | Budinski 2021 - ADE simulated with LBM | Covered By Newer | Original ADE QLBM reference, superseded by newer ADE/no-reinitialization papers. | `ADE`; `LBM`; `QLBM`; `Foundation` |
+| CAR12 | Sanavio 2024/2025 - Explicit quantum circuit for ADR dynamics | Skim For Warning | Circuit-level warning for reaction/diffusion resource growth. | `Carleman`; `ADE`; `ADR`; `Block-Encoding`; `Sparse-Oracles`; `Warning` |
+| CAR13 | Turro 2025 - Quantum Carleman LBM for industrial CFD | Read If Building | Industrial-CFD framing for the Carleman-LBM route. | `Carleman`; `LBM`; `QLSA`; `HHL`; `Industrial-CFD`; `Boundary-Conditions` |
+| CAR14 | Zhang 2025 - Data-driven quantum Koopman method | Watch | Adjacent nonlinear-dynamics route for future data-driven flow work. | `Koopman`; `Quantum-ML`; `Turbulence`; `Shear-Flow`; `Watch` |
+| CAR15 | Sanavio 2025 - Carleman-LBM with matrix access oracles | Read If Building | Makes matrix-oracle and data-loading assumptions explicit for Carleman-LBM. | `Carleman`; `LBM`; `Block-Encoding`; `Matrix-Oracles`; `Data-Loading`; `Success-Probability` |
+| QLSA3 | Yao 2025 - Multi-ansatz variational quantum solver for compressible flows | Watch | Near-term hybrid compressible-flow branch, adjacent to QLSA decisions. | `VQLS`; `QLSA`; `Compressible-Flow`; `Hybrid`; `Near-Term-Hardware` |
+| WATCH3 | Meng 2024 - Simulating unsteady flows on a superconducting processor | Watch | Hardware demonstration context, not an FTQC resource-estimation route. | `Near-Term-Hardware`; `Superconducting`; `Schrodinger-Navier-Stokes`; `Vortex`; `Watch` |
+
+### Already Included Or Merged
+
+- `IO4` already covers Resource implications of different encodings for QCFD.
+- `LBM11`, `LBM7`, `LBM14`, `LBM9`, `LBM12`, `LBM13`, `QRE4`, `CAR7`, and `LBM10` already covered their matching Connected Papers records.
+- Duplicate/final-version records were merged rather than double-counted: the short "fully quantum lattice Boltzmann" record is represented by `LBM16`, the two-circuit/multiple-circuit QLBM records are represented by `LBM13`, and the industrial Carleman-LBM preprint/journal records are represented by `CAR13`.
+
+### Excluded From Corpus
+
+- `IGA-LBM: Isogeometric lattice Boltzmann method` was excluded because it is a classical geometry/discretization paper, not a quantum CFD or resource-estimation route.
+- `An improved boundary condition at a low grid resolution and Reynolds number` was excluded because it is classical LBM boundary-condition background, not a quantum resource-estimation paper. Revisit only if a selected QLBM implementation needs that specific classical boundary model.
+
+## Additional Reference Folder Audit
+
+Source files:
+
+- `References/ConnectedPapers-for-An-end_20to_20end-quantum-algorithm-for-nonlinear-fluid-dynamics-with-bounded-quantum-advantage.bib`
+- `References/ConnectedPapers-for-Quantum-algorithm-for-the-lattice-Boltzmann-method-with-applications-on-real-quantum-devices.bib`
+- `References/Derivative-Works-for-An-end_20to_20end-quantum-algorithm-for-nonlinear-fluid-dynamics-with-bounded-quantum-advantage.bib`
+- `References/Derivative-Works-for-Quantum-algorithm-for-the-lattice-Boltzmann-method-with-applications-on-real-quantum-devices.bib`
+- `References/ConnectedPapers-for-Resource-Implications-of-Different-Encodings-for-Quantum-Computational-Fluid-Dynamics.bib`
+
+Audit result: the five BibTeX files contain 143 records, collapsing to 77 unique titles. After comparing against `docs/research_landscape_data.js`, 43 unique titles were already represented. Eighteen additional relevant records were added below. The rest were duplicate title variants, classical-only CFD/LBM context, or general quantum papers without a clear QCFD resource-estimation role.
+
+### Added From The Folder Audit
+
+| ID | Paper | Reading status | Why included | Main labels |
+| --- | --- | --- | --- | --- |
+| LBM31 | Yepez 2002 - Quantum computation for physical modeling | Reference Only | Early quantum lattice-gas/physical-modeling foundation. | `QLGA`; `Lattice-Gas`; `Foundation`; `Quantum-Walk` |
+| CAR16 | Itani 2021 - Analysis of Carlemann Linearization of Lattice Boltzmann | Reference Only | Older Carleman-LBM derivation with variable blow-up and collision/streaming issues. | `Carleman`; `LBM`; `LBE`; `BGK`; `Variable-Blowup` |
+| CAR17 | Succi 2023 - Ensemble fluid simulations on quantum computers | Watch | Alternative functional-Liouville route for ensembles of fluid fields. | `Functional-Liouville`; `Turbulence`; `Logical-Resources`; `Noisy-Dynamics` |
+| SURV5 | Succi 2023 - Quantum computing for fluids: Where do we stand? | Reference Only | Older fluids-specific quantum computing survey. | `Review`; `Quantum-CFD`; `LBM`; `Carleman`; `Lattice-Gas` |
+| CAR18 | Sanavio 2024 - Carleman-Grad approach to the quantum simulation of fluids | Read If Building | Adds a Grad-based Carleman route between LBM and Navier-Stokes formulations. | `Carleman`; `Grad`; `Navier-Stokes`; `LBE`; `QLSA` |
+| PRIM9 | Bharadwaj 2024 - Compact quantum algorithms for time-dependent differential equations | Read If Building | General time-dependent PDE primitive with explicit fluid-equation motivation. | `PDE`; `LCU`; `Nonunitary`; `QLSA`; `Resource-Estimation` |
+| WATCH4 | Song 2024 - Incompressible Navier-Stokes solve on noisy quantum hardware | Watch | Near-term hybrid NSE route useful for contrast with FTQC assumptions. | `Navier-Stokes`; `Hybrid`; `Near-Term-Hardware`; `Hardware-Noise` |
+| CAR19 | Gonzalez-Conde 2024 - Quantum Carleman linearization efficiency in nonlinear fluid dynamics | Skim For Warning | Direct warning on which nonlinear-fluid regimes can make Carleman efficient. | `Carleman`; `Navier-Stokes`; `Convergence`; `Resource-Estimation`; `Warning` |
+| SURV6 | Sanavio 2024 - Quantum computing for simulation of fluid dynamics | Reference Only | Pedagogical Carleman-LBM/fluid-simulation chapter. | `Review`; `Carleman`; `LBM`; `Quantum-CFD` |
+| LBM32 | Wawrzyniak 2024 - Unitary Quantum Algorithm for the Lattice-Boltzmann Method | Covered By Newer | Predecessor to later dynamic-circuit and no-reinitialization ADE QLBM papers. | `LBM`; `QLBM`; `ADE`; `Dynamic-Circuit`; `No-Reinitialization` |
+| LBM33 | Tiwari 2025 - Algorithmic Advances Towards a Realizable QLBM | Read If Building | Targets QLBM realizability: readout, encoding, depth, and hardware execution. | `LBM`; `QLBM`; `Encoding-Strategy`; `Readout`; `Near-Term-Hardware` |
+| PRIM10 | Gaidai 2025 - Sparse amplitude permutation gates | Read If Building | Potential loading primitive for sparse clustered states. | `State-Preparation`; `Data-Loading`; `Sparse-State-Preparation`; `Gate-Counts` |
+| CAR20 | Novikau 2025 - Globalizing the Carleman embedding method | Read If Building | General Carleman convergence workaround via piecewise/local embeddings. | `Carleman`; `Nonlinear-Dynamics`; `Convergence`; `Piecewise-Linearization` |
+| PRIM11 | Zecchi 2025 - Amplitude amplification for classical transport | Skim For Warning | Warns that OAA can distort nonunitary transport dynamics. | `Transport`; `ADE`; `Amplitude-Amplification`; `Success-Probability`; `Warning` |
+| PRIM12 | Kerppo 2025 - Entanglement-minimized state preparation | Watch | Possible loading heuristic if CFD states have exploitable low-entanglement structure. | `State-Preparation`; `Data-Loading`; `Entanglement-Reduction`; `Watch` |
+| WATCH5 | Yang 2025 - Modeling noise in quantum computing of scalar convection | Skim For Warning | Shows hardware noise can act like artificial diffusion/source terms in convection. | `Scalar-Convection`; `Hardware-Noise`; `Noise-Modeling`; `Artificial-Diffusion` |
+| CAR21 | Wu 2025 - Physics-informed effective Hamiltonians for nonlinear DEs | Watch | Adjacent nonlinear-DE route to monitor against Carleman and Schrodingerization methods. | `Nonlinear-Dynamics`; `Effective-Hamiltonian`; `QSVT`; `Watch` |
+| LBM34 | Itani 2025 - QML of LBM collision operators | Watch | Adjacent learned-collision branch for nonlinear LBM collision approximation. | `LBM`; `QLBM`; `QML`; `Surrogate-Collision`; `Nonlinear-Collision` |
+
+### Already Represented Or Merged In Folder Audit
+
+- `LBM13` represents both the two-circuit and multiple-circuit QLBM resource-reduction records.
+- `LBM12` represents the Zeng 2025/2026 linearized non-equilibrium collision operator record.
+- `LBM10` represents the Wawrzyniak 2025 dynamic-circuit ADE record.
+- `CAR13` represents both the "Practical Application" preprint title and the "Toward Practical Application" journal title for industrial Carleman-LBM.
+- `LBM16` represents the duplicate short title "Fully quantum algorithm for lattice Boltzmann methods with application to partial differential equations."
+
+### Excluded After Folder Audit
+
+- Classical-only CFD/LBM papers: Premnath 2006 MRT multiphase LBM, Asinari 2009 kinetic/finite-difference schemes, Burel 2018 boundary condition, Muller 2023 dynamic crack propagation, Patel 2024 NASA CODA HPC performance, Ranno 2025 coronary-artery hemodynamics, and Ji 2025 IGA-LBM.
+- General quantum/state-preparation papers without a clear QCFD route role at present: Hayes 2023 gravitational-wave state preparation, Warner 2025 nested-entanglement state preparation, Valiente 2025 strongly interacting quantum systems, and Weng 2026 nonlinear Schrodinger equation via measurement-induced potential reconstruction.
+
+## PDF Reference Sanity Check
+
+The PDF `References/Resource_Estimation_for_Computational_Fluid_Dynami.pdf` was also checked for bibliography-only additions. It mostly cited papers already in the corpus or broad quantum-computing background. The following relevant missing items were added:
+
+| ID | Paper | Reading status | Why included | Main labels |
+| --- | --- | --- | --- | --- |
+| IO8 | Mello 2025 - Magic of the Well: assessing quantum resources of fluid dynamics data | Read With | Directly tests the quantum resource content of fluid-dynamics data. | `Encoding-Strategy`; `Data-Loading`; `Tensor-Network`; `Magic`; `Data-Complexity` |
+| QLSA4 | Chen 2024 - Enabling large-scale and high-precision fluid simulations on near-term quantum computers | Watch | Near-term QLS/hybrid CFD claim that should be separated from FTQC estimates. | `QLSA`; `Hybrid`; `Near-Term-Hardware`; `Resource-Estimation` |
+| QLSA5 | Sagai 2024 - VQLS scalability and accuracy for CFD | Watch | Direct VQLS-for-CFD benchmark branch. | `VQLS`; `QLSA`; `CFD`; `Near-Term-Hardware`; `Benchmarking` |
+| QLSA6 | Ye 2024 - Hybrid quantum-classical framework for CFD | Watch | Hybrid CFD framework for near-term route context. | `QLSA`; `Hybrid`; `Near-Term-Hardware`; `Poiseuille`; `Benchmarking` |
+| WATCH6 | Jaksch 2022 - Variational Quantum Algorithms for CFD | Reference Only | Older VQA-for-CFD foundation used to explain the near-term branch. | `VQA`; `CFD`; `Hybrid`; `Near-Term-Hardware`; `Foundation` |
+| CAR22 | Meng 2023 - Hydrodynamic Schrodinger equation for fluid dynamics | Watch | Schrodinger-fluid route behind later superconducting demonstrations. | `Hydrodynamic-Schrodinger`; `Schrodinger-Navier-Stokes`; `Vortex`; `Near-Term-Hardware` |
+| PRIM13 | Bravyi 2024 - High-threshold and low-overhead fault-tolerant quantum memory | Reference Only | Modern QEC memory background for physical-resource assumptions. | `FTQC`; `Quantum-Memory`; `Error-Correction`; `Physical-Resources` |
+
+Broad background references such as general practical quantum simulation, quantum chemistry resource estimates, and pre-FTQC utility demonstrations were not added to the QCFD paper landscape unless they directly changed CFD route selection, data loading, readout, or FTQC resource assumptions.
 
 ## Cross-Document Usage
 
-Use `docs/qcfd_landscape_map.md` first to understand the QCFD route landscape. Use this bibliography for paper-level detail and inclusion status. Use `docs/implementation_plan.md` when deciding what to build next, and use `docs/research_mind_map.html` as an optional interactive paper explorer.
+Use `docs/research_mind_map.html` first when explaining the whole QCFD reading landscape interactively. It is the primary navigation surface for group explanations, reading paths, filters, and paper-to-paper relations. Use this bibliography for paper-level source-of-truth metadata and inclusion status, `docs/qcfd_landscape_map.md` for the static route-map narrative, and `docs/implementation_plan.md` when deciding what to build next.
 
 ## Candidate Appendix
 
