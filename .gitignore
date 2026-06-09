@@ -1,4 +1,8 @@
 .venv/
+.pixi/
+.vscode/
+.devcontainer/
+.devcontainer.disabled/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/

@@ -5,7 +5,10 @@ description = "Classical LBM baselines for a stepwise quantum CFD research proje
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "bartiq==0.17.0",
     "numpy>=2.0",
+    "qref==0.11.0",
+    "scipy>=1.17",
 ]
 
 [project.optional-dependencies]
@@ -13,6 +16,10 @@ notebook = [
     "ipykernel>=6.29",
     "jupyterlab>=4.3",
     "matplotlib>=3.9",
+    "nbconvert>=7.16",
+    "nbformat>=5.10",
+    # Notebook-only visual pedagogy for QRE2/QRE4/LBM14/CAR7 benchmark illustrations.
+    "seaborn>=0.13",
 ]
 
 [dependency-groups]
@@ -30,3 +37,22 @@ packages = ["src/pq_cfd"]
 [tool.pytest.ini_options]
 addopts = "-q"
 testpaths = ["tests"]
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[tool.pixi.pypi-dependencies]
+pq-cfd = { path = ".", editable = true }
+
+[tool.pixi.environments]
+default = { solve-group = "default" }
+dev = { features = ["dev"], solve-group = "default" }
+notebook = { features = ["notebook"], solve-group = "default" }
+
+[tool.pixi.tasks]
+test = { cmd = "pytest", default-environment = "dev", description = "Run the pytest suite" }
+imports = { cmd = 'python -c "import numpy, scipy, bartiq, qref; print(numpy.__version__, scipy.__version__)"', description = "Check core runtime imports" }
+notebook-smoke = { cmd = 'python -c "import IPython, matplotlib, nbformat, seaborn; print(\"jupyter notebook imports ok\")"', default-environment = "notebook", description = "Check Jupyter notebook imports" }
+jupyter-lab = { cmd = "jupyter lab --ip 0.0.0.0 --no-browser", default-environment = "notebook", description = "Open JupyterLab for project notebooks" }
+notebook-execute = { cmd = "jupyter nbconvert --to notebook --execute --output-dir .cache/notebooks notebooks/baseline_lbm.ipynb notebooks/qre2_shifted_operator_handoff.ipynb notebooks/qre2_carleman_lift_handoff.ipynb notebooks/qre2_sparse_streaming.ipynb notebooks/tooling_00_atlas_index.ipynb notebooks/tooling_01_classical_operator_backbone.ipynb notebooks/tooling_02_psiquantum_stack.ipynb notebooks/tooling_03_qcfd_domain_tools.ipynb notebooks/tooling_04_logical_resource_models.ipynb notebooks/tooling_05_circuits_and_compilers.ipynb notebooks/tooling_06_physical_qec_estimators.ipynb notebooks/tooling_07_decision_matrix.ipynb notebooks/tooling_08_live_demo_comparison.ipynb", default-environment = "notebook", description = "Execute active notebooks into .cache/notebooks" }

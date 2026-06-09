@@ -1,199 +1,277 @@
-# Chronological Implementation Plan
+# QCFD Implementation Roadmap
 
-Latest plan date: 2026-05-27
+Latest roadmap date: 2026-06-02
 
-This plan is chronological by dependency order, not by paper publication date. The bibliography in `docs/research_grounding_and_plan.md` is the source of truth for paper metadata and inclusion status. The structured graph in `docs/research_landscape_data.js` is the source of truth for canonical IDs, aliases, citation keys, reading statuses, multi-label tags, and paper-to-paper relations. The landscape wiki in `docs/qcfd_landscape_map.md` is the source of truth for branch-level relationships; `docs/research_mind_map.html` is the local interactive explorer.
+This file is the practical handoff for both the project owner and future agents. It explains what to build next, what must be explained in notebooks, and what gates block quantum/resource code. Paper metadata lives in `docs/research_grounding_and_plan.md`; structured paper IDs, tags, reading statuses, and relationships live in `docs/research_landscape_data.js`; the official visual explorer is `docs/research_mind_map.html`.
 
-## Stage 0: Literature Governance And Lean Classical Baseline
+The paper-anchored migration audit for selectively reusing the previous
+`QCFD_3` attempt is `docs/qre2_migration_audit.md`. Treat that audit as the
+traceability ledger for the first `QRE2` shifted-D2Q9 operator work: `QCFD_3`
+is engineering evidence, while `QRE2` section and equation anchors are the
+authority.
 
-Goal: keep the repository lean while making future work traceable to papers.
+Project philosophy: keep technical depth high and cognitive load low. For each
+new route concept, prefer one exact paper anchor, one compact equation, one
+visual/operator object, and one falsifiable numerical check before adding
+broader code structure.
 
-Required papers:
+## Current State
 
-- `QRE1` Zhuang: full-stack FTQC Navier-Stokes claim to compare against.
-- `QRE2` Jennings: bounded nonlinear LBM resource route.
-- `QRE3` Penuel: drag-force resource warning and bottleneck audit.
-- `QRE4` Jennings/Airbus-PsiQuantum: realistic incompressible-flow extension of the bounded LBM route.
-- `QRE5` Meng: end-to-end rapidly-distorted-turbulence route with resource accounting.
-- `SURV1`, `SURV2`, `SURV3`: orientation only, not implementation authority.
+- The repository is intentionally lean: D1Q3 passive scalar LBM, D2Q9 BGK Taylor-Green LBM, benchmark sweeps, D2Q9 diagnostics, private QRE2 operator validation helpers, private SciPy sparse replays, and private Bartiq/QREF route bookkeeping.
+- Tests currently cover public API stability, validation, solver accuracy, sweeps, and diagnostics.
+- `notebooks/baseline_lbm.ipynb` is the pedagogical Jupyter entrypoint for the classical baseline. It explains D1Q3, D2Q9, Taylor-Green observables, and the diagnostic gate. The package code and tests remain the source of truth for implementation behavior.
+- `notebooks/qre2_shifted_operator_handoff.ipynb` is the Jupyter supervision handoff for the private `QRE2` shifted-D2Q9 operator. It explains the `QCFD_3` adaptation, paper anchors, layout change, validation checks, and dependency/public-API guards.
+- `docs/qre2_migration_audit.md` records which `QCFD_3` components can be adopted, adapted, deferred, or rejected for the first `QRE2` route, with paper anchors and validation requirements.
+- Bartiq/QREF are promoted only for private symbolic bookkeeping, and SciPy sparse is promoted only for classical operator validation. No circuit code, public resource-estimation API, PsiQDK dependency, or route claim should be added before a route note passes the benchmark, encoding, loading, and readout gates below.
 
-Reading-status rule:
+## QRE2 Pre-Carleman Gate
 
-- Start from the `Minimum Reading Path` in `docs/research_mind_map.html`.
-- Treat `Read First` and `Read With` papers as decision inputs.
-- Treat `Read If Building` papers as route-specific work, not general onboarding.
-- Treat `Covered By Newer`, `Reference Only`, and `Watch` papers as dimmed unless a route card explicitly needs them.
+Current decision: the private `QRE2` shifted-D2Q9 route may advance to the
+smallest dense `N_C=2` Carleman lift only after the following pre-Carleman
+checks pass.
 
-Implementation scope:
+Validated scope:
 
-- Keep the existing D1Q3 and D2Q9 baselines.
-- Keep D2Q9 controlled-decay diagnostics.
-- Do not add quantum/resource package APIs until a route card passes Stage 1 and Stage 2.
+- Corpus ID: `QRE2`; route is anchored to `sec:shifted`, `eq:g`,
+  `eq:eq_shift_incompressible`, `eq:eq_shift_explicit`,
+  `eq:LBE_col_shift_matrix`, `eq:F1`, `eq:F2`, and `eq:streaming`.
+- Operator story: shifted moments, shifted equilibrium, direct collision and
+  streaming, polynomial `F1/F2` matrix form, and periodic streaming permutation.
+- Matrix checks: `S.T @ S = I`, direct shifted update equals polynomial
+  matrix update on tiny D2Q9 states, and global `F2` couples same-site pairs
+  only.
+- Benchmark checks: selected Taylor-Green observables remain finite and
+  low-Mach over a small sweep of `16x16`, `32x32`, `64x64` grids and
+  `tau=0.7,0.8,0.9`.
+- Notebook gate: `notebooks/qre2_shifted_operator_handoff.ipynb` executes in
+  Jupyter, shows the operator equations, object ledger, sparsity visuals, local
+  collision storyboard, and selected-observable sweep, while generated outputs
+  stay in `.cache/notebooks/`.
 
-Acceptance gate:
+Remaining caveats:
 
-- Classical solver and diagnostics tests pass.
-- Any proposed task cites canonical bibliography IDs or short aliases and states whether it is bibliography work, route-card work, operator work, readout work, or resource-estimation work.
-- Route-card work preserves reading status, tags, and `coveredBy` / `dependsOn` / `readBefore` metadata when it introduces or reclassifies a paper.
+- This is a route-behavior comparison against the standard BGK D2Q9 baseline,
+  not a claim that the shifted incompressible QRE2 update is algebraically
+  identical to the baseline solver.
+- No Carleman, linear-system, encoding, block-encoding, QLSA, measurement,
+  resource-estimation, or circuit code is included in this gate.
+- The next implementation step is a tiny dense Carleman lift validation, still
+  private/internal and still without quantum packages.
 
-## Stage 1: Benchmark And Observable Cards
+## QRE2 Dense Carleman Lift Gate
 
-Goal: choose benchmarks and observables before choosing algorithms.
+Current implementation boundary: add only the private dense `N_C=2` discrete
+Carleman lift for the validated shifted-D2Q9 polynomial map.
 
-Benchmark cards to create:
+Allowed scope:
 
-- Linear ADE with boundaries: `LBM4`, `LBM5`.
-- Periodic D2Q9 Taylor-Green decay: `QRE2`, `QRE4`, `LBM14`, `CAR7`.
-- Incompressible pressure-Poisson or cavity-flow card: `QLSA1`, `QLSA2`.
-- Drag or force toy benchmark: `QRE3`, `QRE4`, `IO2`.
-- Nonlinear PDE/flow benchmark card: `CAR11`, `CAR1`, `CAR4`, `LBM9`, `LBM12`.
-- Rapidly distorted turbulence statistics card: `QRE5`, `IO2`, `SURV1`.
+- Corpus IDs: `QRE2` for `sec:discrete_carleman`, `eq:Ckl`,
+  `eq:carl_evol_d`, and `eq:LBE_recurrence`; `CAR7` as the D2Q9
+  Carleman-LBM comparator; warnings `IO1`, `CAR15`, `CAR9`, `CAR19`, `IO4`,
+  `IO5`, `IO7`, and `IO8`.
+- Operator story: form the lifted state `y=[g, g^{otimes 2}]`, dense collision
+  block matrix `C`, dense streaming block matrix `S_C=diag(S,S^{otimes 2})`,
+  and dense propagator `P=S_C C` for tiny validation grids.
+- Matrix checks: `N_C=1` recovers the linear-control stream-collide update;
+  `N_C=2` first block matches the direct shifted polynomial update for one
+  step and improves over `N_C=1` on a short tiny-grid run.
+- Allocation guard: dense lifted matrices are refused above an explicit maximum
+  dimension before allocation.
 
-Each card must specify:
+Remaining caveats:
 
-- grid, timestep, viscosity/tau, Mach/Re regime, boundary condition;
-- initial condition and classical reference;
-- selected observable and tolerance;
-- state encoding candidates;
-- data-loading assumption;
-- readout assumption;
-- candidate route IDs.
+- The first block of the truncated lift is a classical validation object, not a
+  circuit, block encoding, QLSA solve, or resource estimate.
+- No loading, oracle, normalization, success-probability, or measurement claim
+  may be inferred from this gate. Those remain blocked by `IO1`, `CAR15`,
+  `CAR9`, `CAR19`, `IO4`, `IO5`, `IO7`, and `IO8`.
+- `CAR7` is route provenance and comparison context here, not a standalone
+  implementation route.
 
-Acceptance gate:
+## Milestone Status
 
-- At least two route alternatives exist for each benchmark before implementation.
-- Full-field readout is marked as a negative control unless a cited paper justifies it.
-- Every `P0` route is either tied to a benchmark card or explicitly deferred with a reason.
+Completed in the 2026-05-28 reset:
 
-## Stage 2: Encoding, Data Loading, And Readout Gate
+- Added root `AGENTS.md` with durable operating instructions.
+- Rewrote this file as the implementation roadmap.
+- Trimmed `docs/research_grounding_and_plan.md` back to a corpus document.
+- Kept `docs/research_mind_map.html` as the official visualization.
+- Updated `notebooks/baseline_lbm.ipynb` as a pedagogical Jupyter classical baseline.
+- Completed the notebook handoff explaining D1Q3, D2Q9, Taylor-Green observables, diagnostics, and why route notes must precede quantum/resource code.
 
-Goal: make I/O and encoding choices blockers before operator implementation.
+Next active work:
 
-Required papers:
+1. Write and compare the first route notes against the periodic D2Q9 Taylor-Green benchmark card.
+   - Active route-note IDs: bounded/realistic QLBM resources (`QRE2`, `QRE4`), Carleman-LBM comparator (`CAR7`), and surrogate BGK collision comparator (`LBM14`).
+   - Required I/O and encoding warning IDs: `IO4`, `IO5`, `IO7`, and `IO8`.
+   - Gate: no route can advance to circuit or resource-estimation code until it states operator/update form, encoding, loading/reloading, selected readout observables, smallest classical validation, resource quantities, comparison papers, blockers, and an advance/defer decision.
 
-- `IO4` Kosel: compare encoding/resource implications for quantum CFD.
-- `IO5` Rathore: fluid-simulation encoding taxonomy.
-- `IO1` Demirdjian: data loading for Carleman-linearized LBE.
-- `IO2` Goldack: statistical velocity-field readout.
-- `IO3` Zhang: approximate data loading, if CFD state structure supports it.
-- `WATCH1` Zhao: watch only for compressed classical-data ideas.
-- `QLSA1` Inger: approximate QST assumptions for pressure-Poisson route.
+2. Use the first benchmark/observable card as the common comparison surface: periodic D2Q9 Taylor-Green.
+   - Candidate paper IDs: `QRE2`, `QRE4`, `LBM14`, `CAR7`.
+   - Current classical reference: `run_d2q9` plus `run_d2q9_diagnostics`.
+   - Observables: velocity field error, vorticity error, kinetic-energy error, divergence RMS, max Mach, mass drift.
+   - Gate: a route cannot advance from this card unless it states encoding, data loading, readout, and resource-comparison assumptions.
 
-Implementation scope:
+3. Keep LBM/QLBM route comparison document-first.
+   - First compare route notes, not packages.
+   - Start with route families that can be tied to the D2Q9/ADE baseline: bounded QLBM resources (`QRE2`, `QRE4`), ADE/time marching (`LBM4`, `LBM10`, `LBM11`, `LBM18`), collision alternatives (`LBM8`, `LBM12`, `LBM14`, `LBM23`), and basis/streaming primitives (`PRIM7`, `PRIM8`, `LBM24`).
+   - Only after this comparison choose the smallest implementation route.
 
-- Add a route-card section for encoding: amplitude, basis, qubit, tensor-network, and hybrid.
-- Add explicit loading/readout line items to every route card.
-- Build no circuit until the card states normalization, success probability, and observable extraction.
+4. Add resource tooling only after a route is concrete.
+   - Qualtran, Azure Resource Estimator, Qiskit, qlbm tooling, or custom circuit libraries can be introduced only when the selected route note identifies the operator, observable, precision target, loading model, success probability, and comparison papers.
 
-Acceptance gate:
+## Benchmark Card Template
 
-- Every active route states why its encoding is chosen.
-- Every active route lists loading cost and readout/sample cost.
-- Any route requiring repeated reloading is compared against `LBM1` and `LBM4`.
+Use this template before implementing or extending a benchmark.
 
-## Stage 3: ADE And LBM Route Comparison
+```markdown
+### Benchmark: <name>
 
-Goal: compare modern LBM-family routes in a small, modular way before committing to one.
+- Corpus IDs:
+- Purpose:
+- Classical reference:
+- Grid and domain:
+- Timestep/steps:
+- Fluid parameters: tau, viscosity/diffusivity, Mach/Re regime if applicable
+- Initial condition:
+- Boundary condition:
+- Observables:
+- Validation metrics and tolerances:
+- Candidate route IDs:
+- Encoding candidates:
+- Data-loading assumption:
+- Readout/sample assumption:
+- Quantum follow-up gate:
+- Current status:
+```
 
-Candidate routes:
+### Benchmark: Periodic D2Q9 Taylor-Green
 
-- `LBM2` Bastida-Zamora OSSLBM: one-step simplified LBM.
-- `LBM3` Xiao fractional-step QLBM: stable incompressible/thermal route.
-- `LBM8` Duong denoising collision: projector/denoising collision route.
-- `LBM9` Wang nonlinear QLBM: node-level ensemble/lattice-gas route.
-- `LBM10` Wawrzyniak dynamic-circuit QLBM: ADE no-reinitialization route with mid-circuit adaptation.
-- `LBM11` Nagel no-reinitialization QLBM: multi-timestep ADE without intermediate state extraction.
-- `LBM12` Zeng linearized-collision QLBM: latest modular Navier-Stokes collision route.
-- `LBM13` Lee QLBM-frugal: streamfunction/vorticity multi-circuit resource reduction.
-- `LBM14` Lacatus surrogate BGK collision: learned local collision circuit route.
-- `LBM1` Ray trapped-ion QLBM: nonuniform 3D advection and readout/reloading bottleneck.
-- `LBM4` He time-marching ADE/LBM: measurement-free and global linear-system alternatives.
-- `LBM5` Chen LCHS ADE: boundary-condition circuits.
-- `LBM6` Xiao LKS: predecessor retained because `LBM3` critiques it.
-- `LBM7` Liu linear-equilibrium QLBM: SVD/LCU collision and bounce-back details.
+- Corpus IDs: `QRE2`, `QRE4`, `LBM14`, `CAR7`.
+- Purpose: first 2D incompressible-flow baseline for comparing LBM/QLBM and Carleman-LBM route assumptions.
+- Classical reference: `pq_cfd.run_d2q9`, `pq_cfd.run_d2q9_diagnostics`, and the analytic low-Mach Taylor-Green decay model.
+- Grid and domain: periodic square lattice, currently tested on refinement sets such as `16x16`, `32x32`, `64x64`, and `128x128`.
+- Timestep/steps: diagnostics choose steps to match a controlled analytic decay exponent.
+- Fluid parameters: `tau > 0.5`; lattice viscosity is `c_s^2 (tau - 1/2)` with `c_s^2 = 1/3`; low-Mach amplitudes only.
+- Initial condition: Taylor-Green vortex velocity with pressure-compatible density perturbation.
+- Boundary condition: periodic.
+- Observables: velocity relative L2 error, vorticity relative L2 error, kinetic-energy relative error, divergence RMS, max Mach, density deviation, mass drift.
+- Validation metrics and tolerances: use `run_d2q9_diagnostics`; non-passing diagnostics block quantum follow-up.
+- Candidate route IDs: bounded/realistic QLBM resources (`QRE2`, `QRE4`), surrogate BGK collision (`LBM14`), and Carleman-LBM comparison (`CAR7`).
+- Encoding candidates: unresolved; must compare amplitude, basis/qubit, and route-specific encodings with `IO4`, `IO5`, `IO7`, and `IO8` before circuit work.
+- Data-loading assumption: unresolved; full field loading is not assumed cheap.
+- Readout/sample assumption: selected observables only; full-field readout remains a negative control.
+- Quantum follow-up gate: route note must specify operator form, encoding, data loading/reloading, readout, normalization/success probability if relevant, and resource quantities.
+- Current status: classical solver and diagnostics exist; notebook explanation is complete; first route-note comparison is the active milestone.
 
-Implementation order:
+## Route Note Template
 
-1. Build classical matrix/operator representations for ADE and D2Q9 toy cases.
-2. Write an operator note for each route: state dimension, update form, normalization, success probability, and observable path.
-3. Compare route notes before adding circuit code.
-4. Implement only the smallest route that passes Stage 2 and has a clear benchmark card.
+Use this template before adding quantum algorithms, resource estimators, or route-specific packages.
 
-Acceptance gate:
+```markdown
+### Route: <name>
 
-- At least two LBM-family alternatives are compared on the same benchmark.
-- Hybrid classical steps are labeled and included in runtime/resource accounting.
-- Denoising/reinitialization/tomography assumptions are explicit.
-- Every route card includes multi-label tags from the bibliography, including at least one formulation tag, one method tag, one I/O tag, and one resource/hardware maturity tag.
+- Corpus IDs:
+- Reading status:
+- Benchmark card:
+- Route family:
+- What evolves: field, distribution, lifted polynomial state, stochastic observable, pressure solve, or statistic
+- Operator/update form:
+- Nonlinearity treatment:
+- Boundary/forcing treatment:
+- Encoding:
+- Data loading and reloading:
+- Readout and sample complexity:
+- Normalization/success probability:
+- Error budget and tolerance:
+- Smallest classical validation:
+- Resource quantities to estimate:
+- Comparison papers:
+- Main blockers:
+- Decision:
+```
 
-## Stage 4: Nonlinear Routes Beyond LBM
+### Route: Bounded And Realistic QLBM Resources
 
-Goal: compare nonlinear alternatives without mixing their assumptions.
+- Corpus IDs: `QRE2`, `QRE4`, with encoding/readout checks from `IO4`, `IO5`, `IO7`, and `IO8`.
+- Reading status: `QRE2` is Read First; `QRE4` is Read With; `IO4` and `IO5` are Read First; `IO7` and `IO8` are Read With for encoding and fluid-data resource warnings.
+- Benchmark card: Periodic D2Q9 Taylor-Green.
+- Route family: LBM/QLBM fault-tolerant resource route.
+- What evolves: D2Q9 distribution populations and their low-Mach macroscopic velocity/density moments.
+- Operator/update form: stream-collide LBM-style timestep; route note must extract the exact update, resource-count template, and selected-observable path from `QRE2`, then record which boundary/forcing extensions from `QRE4` are out of scope for the periodic first card.
+- Nonlinearity treatment: treat nonlinear incompressible-flow terms only through the bounded assumptions stated by `QRE2`; do not generalize to arbitrary Navier-Stokes without a separate note.
+- Boundary/forcing treatment: periodic boundaries only for the first card; walls, inlets, outlets, forcing, cavity flow, and cylinder flow remain `QRE4` comparison items.
+- Encoding: unresolved; compare amplitude, basis/qubit, and route-specific encodings using `IO4`, `IO5`, `IO7`, and `IO8` before choosing a circuit representation.
+- Data loading and reloading: unresolved and not assumed cheap; record whether the route needs initial-state loading only, repeated field reloading, or oracle/block-encoding access.
+- Readout and sample complexity: selected observables only: velocity moments/error proxies, vorticity, kinetic energy, divergence RMS, max Mach, density deviation, and mass drift; full-field readout is a negative-control baseline.
+- Normalization/success probability: unresolved; extract any block-encoding normalization, postselection, amplification, or failure-probability assumptions from `QRE2`.
+- Error budget and tolerance: start from the existing D2Q9 diagnostic pass/fail gates and add route-specific precision only after `QRE2` resource tolerances are extracted.
+- Smallest classical validation: construct no quantum code yet; first validate a tiny classical D2Q9 stream-collide operator or matrix representation against `run_d2q9` for one and several low-Mach Taylor-Green steps.
+- Resource quantities to estimate: logical qubits, gate count, T count/depth if applicable, circuit depth, timestep scaling, loading cost, readout/sample count, and later physical qubits/runtime only after a logical route is explicit.
+- Comparison papers: compare directly against `CAR7` and `LBM14` on the same benchmark; use `QRE3` only as an I/O/readout warning comparator if drag or force observables enter scope.
+- Main blockers: unresolved encoding, data loading/reloading, normalization/success probability, selected-observable sample cost, and whether `QRE4` boundary/forcing constants affect the periodic case.
+- Decision: advance only as a route-note extraction task; defer all packages, circuits, and resource-estimator code.
 
-Candidate routes:
+### Route: Carleman-LBM Comparator
 
-- `QRE5` Meng: rapidly distorted turbulence through LCHS and selected statistics.
-- `CAR11` Bharadwaj: homotopy algorithm for nonlinear PDEs and flow problems.
-- `CAR1` Cappelli SNS: Schrodinger-Navier-Stokes and Hamilton-Jacobi/Carleman route.
-- `CAR2` Cappelli steady-state Carleman: lowest-order steady-state route.
-- `CAR3` Jemcov KvN: unitary PDF route for fluid/plasma dynamics.
-- `CAR4` Bravyi: noisy dissipative nonlinear dynamics.
-- `CAR10` Li: nonlinear stochastic differential equations.
-- `CAR5` Wang: pivot-shifted Carleman.
-- `CAR6`, `CAR7`, `CAR8`: Carleman foundations and route comparisons.
-- `CAR9` Lin: warning checklist for linear-representation failure modes.
+- Corpus IDs: `CAR7`, with loading/readout warnings from `IO4`, `IO5`, `IO7`, and `IO8`.
+- Reading status: `CAR7` is Reference Only/Foundation for moderate-Re D2Q9 Carleman-LBM; read only the sections needed for formulas, truncation, and circuit-depth warnings unless this comparator becomes active.
+- Benchmark card: Periodic D2Q9 Taylor-Green.
+- Route family: Carleman-linearized LBM comparison route.
+- What evolves: a lifted polynomial state built from D2Q9 distribution variables.
+- Operator/update form: second-order or otherwise explicitly stated Carleman truncation of the LBM update; route note must identify the smallest lifted update matrix before implementation.
+- Nonlinearity treatment: nonlinearity is represented by finite-order Carleman lifting; truncation order, dimension growth, and moderate-Re assumptions are blockers rather than implementation details.
+- Boundary/forcing treatment: periodic first; no boundary extension until the periodic lifted operator is specified and compared with `QRE4` assumptions.
+- Encoding: unresolved; compare lifted-state amplitude encoding against basis/qubit alternatives using `IO4`, `IO5`, `IO7`, and `IO8`.
+- Data loading and reloading: first-class blocker; do not assume loading the lifted state or matrix access oracle is cheap.
+- Readout and sample complexity: selected Taylor-Green observables only; full lifted-state or full-field reconstruction is a negative-control baseline.
+- Normalization/success probability: unresolved; the note must record matrix norm, block-encoding normalization, condition/success assumptions, and any amplification requirements before resource work.
+- Error budget and tolerance: classical diagnostic tolerances apply first; add truncation and linear-solver precision only after the lifted operator is written down.
+- Smallest classical validation: build no quantum code yet; first write a tiny classical lifted D2Q9 update for a minimal periodic grid and compare one-step and short-time moment evolution to `run_d2q9`.
+- Resource quantities to estimate: lifted dimension, sparsity/oracle assumptions, normalization, logical qubits, T/gate counts if block encoding is chosen, timestep scaling, loading cost, and selected-observable readout cost.
+- Comparison papers: compare against bounded QLBM (`QRE2`, `QRE4`) and surrogate collision (`LBM14`); bring in data-loading papers only when the lifted state access model is explicit.
+- Main blockers: lifted dimension blowup, truncation validity, conditioning/normalization, repeated loading, and readout cost.
+- Decision: keep as comparator; defer implementation until the QLBM route note exposes a concrete operator to compare against.
 
-Implementation order:
+### Route: Surrogate BGK Collision Comparator
 
-1. For each route, state whether it evolves fields, distributions, polynomial lifts, stochastic observables, or steady states.
-2. Apply `CAR9` as a failure-mode checklist to all Carleman/KvN-like routes.
-3. Compare nonlinear route cards on dimension blowup, convergence condition, conditioning, and observable extraction.
-4. Implement only a toy nonlinear operator after Stage 2 and Stage 3 results identify a route worth resource-estimating.
+- Corpus IDs: `LBM14`, with encoding/readout checks from `IO4`, `IO5`, `IO7`, and `IO8`.
+- Reading status: `LBM14` is Watch/P2; read it only as a collision-cost alternative unless learned surrogate collision becomes central.
+- Benchmark card: Periodic D2Q9 Taylor-Green.
+- Route family: collision-alternative QLBM route.
+- What evolves: local D2Q9 distribution populations through a learned/surrogate BGK collision component, paired conceptually with a streaming step.
+- Operator/update form: surrogate local collision circuit or classical surrogate map for the BGK collision; the route note must separate local collision approximation from lattice streaming and boundary handling.
+- Nonlinearity treatment: nonlinearity is approximated in the collision surrogate; mass, symmetry, stability, and low-Mach validity constraints must be documented from `LBM14`.
+- Boundary/forcing treatment: periodic first; lid-driven cavity and other validations from `LBM14` stay comparison context, not first implementation scope.
+- Encoding: unresolved; local population encoding must be compared against route-level field/state encoding using `IO4`, `IO5`, `IO7`, and `IO8`.
+- Data loading and reloading: unresolved; a low-depth collision circuit does not remove the cost of preparing local populations or reloading the global state.
+- Readout and sample complexity: selected Taylor-Green diagnostics only; do not use full-field tomography as the default validation path.
+- Normalization/success probability: unresolved; record whether the surrogate is unitary, approximate, postselected, variational, or otherwise requiring normalization/resource overhead before code.
+- Error budget and tolerance: separate surrogate collision approximation error from D2Q9 discretization and diagnostic tolerances.
+- Smallest classical validation: build no quantum code yet; first test a classical local collision surrogate or explicit local collision matrix on D2Q9 populations and verify mass/symmetry constraints plus Taylor-Green diagnostic observables.
+- Resource quantities to estimate: collision circuit depth/gates, qubits per node or local register, streaming overhead, loading/reloading cost, surrogate training/selection assumptions, and selected-observable readout samples.
+- Comparison papers: compare against bounded QLBM (`QRE2`, `QRE4`) and Carleman-LBM (`CAR7`) only after the local collision and global streaming assumptions are separated.
+- Main blockers: learned-circuit scope, integration with global streaming, measurement/reinitialization assumptions, loading/readout cost, and absence of an end-to-end FTQC resource claim.
+- Decision: watch/comparator only; defer implementation unless collision cost becomes the dominant blocker after the bounded QLBM note.
 
-Acceptance gate:
+## Gates
 
-- The route states how nonlinearity is represented.
-- Dimension blowup and convergence assumptions are explicit.
-- The route is compared against `QRE1`, `QRE2`, and `QRE3` before resource work.
+- Benchmark gate: do not implement a route until the benchmark and observable are named.
+- Encoding gate: do not trust a speedup claim until the state representation and initialization/readout costs are explicit.
+- Readout gate: full-field readout is a negative control unless the cited route justifies it.
+- Route-comparison gate: compare at least two plausible routes on the same benchmark before committing to one.
+- Tooling gate: beyond the current private SciPy sparse and Bartiq/QREF bookkeeping helpers, do not add Qiskit, Qualtran, qlbm tooling, Azure estimator code, PsiQDK, or custom circuit layers until a route note identifies exactly why that tool is needed.
 
-## Stage 5: Resource-Estimation Stack
+## Verification Routine
 
-Goal: produce reproducible logical and physical resource estimates only after the route, operator, and observable are explicit.
+- Run `uv run pytest` after code or notebook-facing API changes.
+- Execute notebooks into `.cache/notebooks/` for verification instead of committing outputs.
+- Run the corpus/graph ID consistency check after corpus edits.
+- Confirm `pq_cfd.__all__` remains small unless the roadmap explicitly calls for a public API change.
 
-Required papers/tools:
+## Working Defaults
 
-- `QRE1`, `QRE2`, `QRE3`: comparison targets.
-- `QRE4`, `QRE5`: latest realistic-flow and turbulence-statistics comparison targets.
-- `PRIM5` Qualtran: logical resource representation.
-- `PRIM6` Azure Quantum Resource Estimator: physical resources.
-- `PRIM1` QSVT, `PRIM2` linear ODE, `PRIM3` PDE algorithms, `PRIM4` surface code: primitives used only when invoked by a route.
-
-Implementation order:
-
-1. Express the chosen operator as a logical resource model.
-2. Record block-encoding normalization, precision, failure budget, and success probability.
-3. Produce logical qubits, T count, T depth, and circuit depth.
-4. Convert to physical qubits and runtime under documented QEC assumptions.
-5. Compare against `QRE1`, `QRE2`, and `QRE3`.
-
-Acceptance gate:
-
-- Resource output lists logical qubits, T count/depth, circuit depth, normalization, success probability, error budget, physical qubits, runtime, and readout/sample count.
-- The estimate names which assumptions are inherited from papers and which are project choices.
-
-## Stage 6: Route Selection And Comparative Report
-
-Goal: choose the next implementation route based on evidence, not novelty alone.
-
-Required outputs:
-
-- one benchmark card per active route;
-- one operator/readout note per route;
-- one resource-estimation note for any route that reaches Stage 5;
-- a comparative report ranking routes by implementability, resource credibility, and risk.
-
-Decision rule:
-
-- A newer paper gets priority only when it changes a route, benchmark, observable, encoding, readout, or resource estimate.
-- An older paper remains active only when it provides a primitive or warning that a newer route depends on.
-- No route advances if it cannot state its data-loading, readout, and resource-estimation assumptions.
+- Prefer short, explicit documents over parallel planning files.
+- Prefer explanatory notebooks for research understanding and tested package code for reusable behavior.
+- Prefer selected observables over reconstructing whole velocity or density fields.
+- Treat newer papers as route-setting only when they change a benchmark, observable, encoding, loading, readout, or resource estimate.

@@ -40,7 +40,8 @@ window.QCFD_LANDSCAPE = {
       "Resource-Reduction", "Logical-Resources", "Physical-Resources", "Gate-Counts",
       "Benchmarking", "Software", "Success-Probability", "Hardware-Noise", "Noise-Modeling",
       "Artificial-Diffusion", "Quantum-Memory", "Error-Correction", "Surface-Code",
-      "T-Count", "Circuit-Depth"
+      "T-Count", "Circuit-Depth", "Bartiq", "QREF", "PsiQDK", "Workbench",
+      "Symbolic-Resources", "Schema"
     ],
     benchmark: [
       "Taylor-Green", "Lid-Driven-Cavity", "Flow-Past-Cylinder", "Drag",
@@ -109,7 +110,7 @@ window.QCFD_LANDSCAPE = {
       whyItMatters: "These are not CFD routes, but every credible FTQC resource estimate eventually depends on them.",
       readStrategy: "Do not read first. Open these only when a route card invokes a primitive or needs logical-to-physical resource conversion.",
       mainBottleneck: "Mapping CFD-specific operators into reusable primitives without hiding normalization, precision, or QEC assumptions.",
-      keyPaperIds: ["PRIM-005", "PRIM-006", "PRIM-001", "PRIM-003", "PRIM-004", "PRIM-007", "PRIM-008", "PRIM-009", "PRIM-011", "PRIM-013"]
+      keyPaperIds: ["PRIM-014", "PRIM-015", "PRIM-016", "PRIM-005", "PRIM-006", "PRIM-001", "PRIM-003", "PRIM-004", "PRIM-007", "PRIM-008", "PRIM-009", "PRIM-011", "PRIM-013"]
     },
     {
       id: "route-surv",
@@ -237,7 +238,7 @@ window.QCFD_LANDSCAPE = {
       id: "resources",
       label: "Resource tooling",
       description: "Read when converting an operator into logical and physical resources.",
-      papers: ["QRE-001", "QRE-002", "QRE-003", "QRE-005", "PRIM-005", "PRIM-006", "PRIM-004", "PRIM-007", "PRIM-008", "PRIM-009", "PRIM-011", "PRIM-013"]
+      papers: ["QRE-001", "QRE-002", "QRE-003", "QRE-005", "PRIM-014", "PRIM-015", "PRIM-016", "PRIM-005", "PRIM-006", "PRIM-004", "PRIM-007", "PRIM-008", "PRIM-009", "PRIM-011", "PRIM-013"]
     }
   ],
   overlapLenses: [
@@ -293,7 +294,7 @@ window.QCFD_LANDSCAPE = {
           label: "Primitives / tooling",
           description: "Reusable quantum algorithm primitives, resource estimators, loading routines, and QEC/resource tooling.",
           whyItMatters: "Any credible resource estimate eventually depends on these assumptions, even when the paper is not CFD-specific.",
-          tagsAny: ["QSVT", "Block-Encoding", "LCU", "Tooling", "Software", "Resource-Estimation", "Resource-Reduction", "Logical-Resources", "Physical-Resources", "Error-Correction", "Surface-Code", "State-Preparation", "Data-Loading", "Gate-Counts", "Circuit-Depth"]
+          tagsAny: ["QSVT", "Block-Encoding", "LCU", "Tooling", "Software", "Resource-Estimation", "Resource-Reduction", "Logical-Resources", "Physical-Resources", "Error-Correction", "Surface-Code", "State-Preparation", "Data-Loading", "Gate-Counts", "Circuit-Depth", "Bartiq", "QREF", "PsiQDK", "Workbench", "Symbolic-Resources", "Schema"]
         }
       ]
     },
@@ -349,7 +350,7 @@ window.QCFD_LANDSCAPE = {
           label: "Resource tooling",
           description: "Logical/physical resource tooling, QEC, block-encoding, and circuit primitives.",
           whyItMatters: "This is the machinery needed to turn a selected route into resource estimates.",
-          tagsAny: ["Tooling", "Software", "QSVT", "Block-Encoding", "Gate-Counts", "Circuit-Depth", "T-Count", "Surface-Code", "Azure-Resource-Estimator", "Qualtran"]
+          tagsAny: ["Tooling", "Software", "QSVT", "Block-Encoding", "Gate-Counts", "Circuit-Depth", "T-Count", "Surface-Code", "Azure-Resource-Estimator", "Qualtran", "Bartiq", "QREF", "PsiQDK", "Workbench", "Symbolic-Resources"]
         }
       ]
     },
@@ -1700,6 +1701,81 @@ window.QCFD_LANDSCAPE = {
       dependsOn: ["PRIM-004"],
       readBefore: [],
       skipReason: "Skip until logical resources are available."
+    },
+    {
+      id: "PRIM-014",
+      alias: "PRIM14",
+      citationKey: "PsiQuantum2026Bartiq",
+      author: "PsiQuantum",
+      year: "2026",
+      capsule: "symbolic resources",
+      title: "Bartiq symbolic quantum resource estimation compilation",
+      link: "https://psiq.github.io/bartiq/latest/",
+      date: "Latest PyPI release 0.17.0 on 2026-05-20",
+      maturity: "Official docs / package",
+      priority: "P1",
+      readingStatus: "Read If Building",
+      whyRead: "Read when turning route-note modules into symbolic resource-accounting trees.",
+      routeRole: "Symbolic logical-resource aggregation tool.",
+      extraction: "Routine trees, symbolic parameters, child-resource propagation, repetitions, and global cost formulas.",
+      risk: "Not a circuit implementation; placeholder formulas can compile even when the physics or route assumptions are wrong.",
+      summary: "Use as the first sandbox for route-note accounting before promoting any dependency or circuit implementation.",
+      tags: ["Tooling", "Bartiq", "QREF", "Logical-Resources", "Resource-Estimation", "Gate-Counts", "T-Count", "Symbolic-Resources", "Software"],
+      routeIds: ["route-prim", "route-ftqc"],
+      coveredBy: [],
+      dependsOn: ["PRIM-015"],
+      readBefore: [],
+      skipReason: "Skip only if no symbolic resource tree is being explored."
+    },
+    {
+      id: "PRIM-015",
+      alias: "PRIM15",
+      citationKey: "PsiQuantum2025QREF",
+      author: "PsiQuantum",
+      year: "2025",
+      capsule: "resource schema",
+      title: "Quantum Resource Estimation Format",
+      link: "https://pypi.org/project/qref/",
+      date: "Latest PyPI release 0.11.0 on 2025-04-08",
+      maturity: "Official format / package",
+      priority: "P1",
+      readingStatus: "Read If Building",
+      whyRead: "Read when a resource model needs a portable routine-tree schema.",
+      routeRole: "Resource-estimation data format.",
+      extraction: "Hierarchical routine schema, children, ports, connections, repetitions, and validation.",
+      risk: "Schema structure is not resource evidence; formulas still need route-paper backing.",
+      summary: "Use with PRIM-014 for sandbox route skeletons and with PRIM-005 if Qualtran interop becomes useful.",
+      tags: ["Tooling", "QREF", "Software", "Logical-Resources", "Resource-Estimation", "Schema", "Symbolic-Resources"],
+      routeIds: ["route-prim", "route-ftqc"],
+      coveredBy: [],
+      dependsOn: [],
+      readBefore: [],
+      skipReason: "Skip until resource models need a shared schema."
+    },
+    {
+      id: "PRIM-016",
+      alias: "PRIM16",
+      citationKey: "PsiQuantum2026PsiQDK",
+      author: "PsiQuantum",
+      year: "2026",
+      capsule: "FTQC SDK",
+      title: "PsiQuantum Development Kit",
+      link: "https://github.com/psiq/psiqdk",
+      date: "Latest PyPI release 2.0.0 on 2026-05-26",
+      maturity: "Beta SDK / official package",
+      priority: "P1",
+      readingStatus: "Read If Building",
+      whyRead: "Read when moving from symbolic resource boxes to PsiQuantum-native FTQC subroutine trials.",
+      routeRole: "PsiQuantum-native FTQC implementation and resource-estimation stack.",
+      extraction: "Workbench, Algorithms, Visualize, pinned Bartiq/QREF, state preparation, QROM/data loading, arithmetic, phase estimation, and logical resource reports.",
+      risk: "Not Windows-native; use WSL/Linux sandbox. SDK primitives do not replace QRE2/operator validation.",
+      summary: "Try after SciPy sparse validation and Bartiq route bookkeeping identify the subroutine to implement.",
+      tags: ["Tooling", "PsiQDK", "Workbench", "Software", "Logical-Resources", "Resource-Estimation", "State-Preparation", "Data-Loading", "Gate-Counts", "T-Count", "Symbolic-Resources"],
+      routeIds: ["route-prim", "route-ftqc"],
+      coveredBy: [],
+      dependsOn: ["PRIM-014", "PRIM-015"],
+      readBefore: [],
+      skipReason: "Skip until a WSL/Linux sandbox is selected for FTQC implementation microbenchmarks."
     },
     {
       id: "IO-006",

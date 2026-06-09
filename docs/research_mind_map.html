@@ -24,6 +24,7 @@
       --shadow: 0 14px 38px rgba(28, 37, 54, 0.12);
       --radius: 8px;
       --sidebar: 330px;
+      --sidebar-rail: 44px;
       --details: 390px;
       --topbar: 68px;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -50,7 +51,7 @@
     .app {
       height: 100vh;
       display: grid;
-      grid-template-columns: var(--sidebar) minmax(420px, 1fr) var(--details);
+      grid-template-columns: var(--sidebar-rail) minmax(420px, 1fr);
       grid-template-rows: var(--topbar) minmax(0, 1fr);
     }
 
@@ -114,13 +115,104 @@
     }
 
     aside {
+      grid-column: 1;
+      grid-row: 2;
+      position: relative;
       border-right: 1px solid var(--line);
       padding: 18px 16px 28px;
+      width: var(--sidebar-rail);
+      max-width: var(--sidebar);
+      overflow-x: hidden;
+      z-index: 8;
+      transition: width 180ms ease, box-shadow 180ms ease;
+      box-shadow: 7px 0 20px rgba(28, 37, 54, 0);
+    }
+
+    aside::before {
+      content: "Filters";
+      position: absolute;
+      left: 10px;
+      top: 18px;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+      letter-spacing: 0;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 120ms ease;
+    }
+
+    aside::after {
+      content: "";
+      position: fixed;
+      left: var(--sidebar-rail);
+      top: var(--topbar);
+      bottom: 0;
+      width: 14px;
+      pointer-events: none;
+    }
+
+    body.filters-open aside,
+    aside:hover,
+    aside:focus-within {
+      width: var(--sidebar);
+      box-shadow: 12px 0 32px rgba(28, 37, 54, 0.16);
+    }
+
+    body.filters-open aside::before,
+    aside:hover::before,
+    aside:focus-within::before {
+      opacity: 0;
+    }
+
+    aside > * {
+      width: calc(var(--sidebar) - 32px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 130ms ease;
+    }
+
+    body.filters-open aside > *,
+    aside:hover > *,
+    aside:focus-within > * {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .details {
+      position: fixed;
+      top: var(--topbar);
+      right: 0;
+      bottom: 0;
+      width: var(--details);
       border-left: 1px solid var(--line);
       padding: 20px 18px 28px;
+      z-index: 12;
+      transform: translateX(calc(100% + 16px));
+      transition: transform 180ms ease, box-shadow 180ms ease;
+      pointer-events: none;
+      box-shadow: -16px 0 34px rgba(28, 37, 54, 0);
+    }
+
+    .details.open {
+      transform: translateX(0);
+      pointer-events: auto;
+      box-shadow: -16px 0 34px rgba(28, 37, 54, 0.16);
+    }
+
+    .details-close {
+      float: right;
+      border: 1px solid var(--line);
+      background: #fbfcfd;
+      border-radius: var(--radius);
+      color: #253145;
+      padding: 6px 8px;
+      cursor: pointer;
+      font-size: 11px;
+      line-height: 1;
+      margin-left: 10px;
     }
 
     .section {
@@ -449,6 +541,30 @@
       display: none;
     }
 
+    .region-path {
+      fill: var(--region-fill, rgba(217, 238, 235, 0.42));
+      stroke: var(--region-color, #0f6b66);
+      stroke-width: 3;
+      stroke-linejoin: round;
+      opacity: 0.82;
+      transition: opacity 160ms ease, stroke-width 160ms ease, filter 160ms ease;
+    }
+
+    .region-path.dim {
+      opacity: 0.18;
+      filter: grayscale(0.45);
+    }
+
+    .region-path.active {
+      opacity: 0.92;
+    }
+
+    .region-path.selected {
+      opacity: 1;
+      stroke-width: 5;
+      filter: drop-shadow(0 8px 16px rgba(28, 37, 54, 0.12));
+    }
+
     .route-node,
     .paper-node {
       position: absolute;
@@ -619,14 +735,19 @@
       top: var(--zone-y);
       width: var(--zone-w);
       height: var(--zone-h);
-      border: 1px solid #c8d1dd;
+      border: 1px solid var(--zone-color, #c8d1dd);
       border-radius: var(--radius);
-      background: rgba(255, 255, 255, 0.54);
+      background: var(--zone-fill, rgba(255, 255, 255, 0.72));
       box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.62);
       color: inherit;
       cursor: pointer;
       overflow: hidden;
       z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+      padding: 6px;
       transition: opacity 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
     }
 
@@ -659,7 +780,7 @@
 
     .overlap-zone.trigger-hover {
       border-color: var(--accent);
-      background: rgba(217, 238, 235, 0.68);
+      background: rgba(255, 255, 255, 0.9);
     }
 
     .overlap-zone-trigger:focus-visible {
@@ -677,12 +798,10 @@
     }
 
     .overlap-label {
-      position: absolute;
-      left: 14px;
-      top: 12px;
-      max-width: calc(100% - 120px);
+      position: static;
+      min-width: 0;
       border-radius: 6px;
-      background: #223653;
+      background: var(--zone-label, #223653);
       color: #ffffff;
       padding: 7px 10px;
       font-size: 14px;
@@ -695,9 +814,7 @@
     }
 
     .overlap-meta {
-      position: absolute;
-      right: 14px;
-      top: 12px;
+      position: static;
       color: #536174;
       font-size: 11px;
       line-height: 1.15;
@@ -708,17 +825,7 @@
     }
 
     .overlap-body {
-      position: absolute;
-      left: 14px;
-      right: 14px;
-      top: 54px;
-      display: grid;
-      gap: 7px;
-      color: #37455b;
-      font-size: 12px;
-      line-height: 1.28;
-      max-height: 70px;
-      overflow: hidden;
+      display: none;
     }
 
     .atlas-paper-node {
@@ -786,6 +893,12 @@
     .atlas-legend strong {
       color: #172033;
       font-weight: 780;
+    }
+
+    .graph-note {
+      color: #475569;
+      font-size: 11px;
+      line-height: 1.35;
     }
 
     .year-ramp {
@@ -1068,32 +1181,24 @@
     }
 
     @media (max-width: 1180px) {
-      body {
-        overflow: auto;
-      }
-
       .app {
-        min-height: 100vh;
-        height: auto;
-        grid-template-columns: 300px minmax(520px, 1fr);
-        grid-template-rows: var(--topbar) 650px auto;
+        height: 100vh;
+        grid-template-columns: var(--sidebar-rail) minmax(420px, 1fr);
+        grid-template-rows: var(--topbar) minmax(0, 1fr);
       }
 
       .details {
-        grid-column: 1 / -1;
-        border-left: 0;
-        border-top: 1px solid var(--line);
+        width: min(92vw, var(--details));
         max-height: none;
       }
     }
 
     @media (max-width: 840px) {
-      body {
-        overflow: auto;
-      }
-
       .app {
-        display: block;
+        height: 100vh;
+        display: grid;
+        grid-template-columns: var(--sidebar-rail) minmax(360px, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
       }
 
       header {
@@ -1110,15 +1215,12 @@
         padding-bottom: 3px;
       }
 
-      aside,
-      .details {
-        border: 0;
-        border-bottom: 1px solid var(--line);
-        max-height: none;
+      aside {
+        grid-row: 2;
       }
 
       .canvas-wrap {
-        height: 620px;
+        min-height: 0;
         border-bottom: 1px solid var(--line);
       }
     }
@@ -1129,12 +1231,12 @@
     <header>
       <div class="brand">
         <h1>QCFD Reading Landscape</h1>
-        <p>Default view shows the minimum reading path; filters dim non-matching papers.</p>
+        <p>Default view shows project-route regions; filters dim non-matching papers.</p>
       </div>
       <div class="header-actions" aria-label="Corpus counts">
         <div class="metric"><strong id="paperCount">0</strong> papers</div>
         <div class="metric"><strong id="brightCount">0</strong> active</div>
-        <div class="metric"><strong id="pathCount">0</strong> <span id="contextCountLabel">zones</span></div>
+        <div class="metric"><strong id="pathCount">0</strong> <span id="contextCountLabel">regions</span></div>
       </div>
     </header>
 
@@ -1143,18 +1245,18 @@
         <h2>View</h2>
         <div class="view-switch" aria-label="Landscape view">
           <button id="viewOverlapAtlas" class="view-button" type="button">
-            <strong>Overlap Atlas</strong>
-            <span>ideas by multi-tag intersection</span>
+            <strong>Region Map</strong>
+            <span>route regions and intersections</span>
           </button>
           <button id="viewRouteMap" class="view-button" type="button">
-            <strong>Route Map</strong>
-            <span>papers, groups, and relations</span>
+            <strong>Graph View</strong>
+            <span>paper relations and clusters</span>
           </button>
         </div>
       </section>
 
       <section id="overlapLensSection" class="section">
-        <h2>Overlap Lens</h2>
+        <h2>Region Lens</h2>
         <div id="overlapLensButtons" class="paths"></div>
       </section>
 
@@ -1166,9 +1268,9 @@
       <section class="section">
         <h2>Landscape Guide</h2>
         <div class="guide-panel">
-          <p><strong>Read the map left to right:</strong> full-stack claims define the target, I/O gates test whether the target survives, then route families show implementation choices.</p>
-          <p><strong>Bright papers</strong> are active for the current path or filters. Dimmed papers stay clickable because older work may still explain provenance or a route detail.</p>
-          <p><strong>Group boxes</strong> are clickable. Use them to explain what each cluster means before opening individual papers.</p>
+          <p><strong>Region Map:</strong> papers sit inside one route region or at the intersection of multiple regions.</p>
+          <p><strong>Graph View:</strong> papers keep the same cards while relation edges expose coverage, dependencies, and reading order.</p>
+          <p><strong>Bright papers</strong> are active for the current path or filters. Dimmed papers stay clickable for provenance and route details.</p>
         </div>
       </section>
 
@@ -1230,10 +1332,11 @@
         <button id="wholeLandscapeButton" class="toolbar-button" type="button">Whole Landscape</button>
       </div>
       <div id="atlasLegend" class="atlas-legend">
-        <strong>Overlap Atlas Legend</strong>
+        <strong>Region Map Legend</strong>
         <span>Fill color = reading status / reading order.</span>
         <span>Border gradient = publication year from older blue to newer red.</span>
-        <span>Zone position = tag overlap, not citation influence.</span>
+        <span>Region blobs = corpus classifications from the active lens.</span>
+        <span>Intersection position = multi-region paper membership.</span>
         <span>Dimmed papers stay clickable.</span>
         <div class="year-ramp" aria-hidden="true"></div>
         <div class="status-swatch-row" aria-hidden="true">
@@ -1278,13 +1381,13 @@
       }
 
       const statusClass = (status) => `status-${status.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
-      const ROUTE_STAGE = { width: 3300, height: 3300 };
-      const ATLAS_STAGE = { width: 3600, height: 4200 };
-      let currentStage = { ...ATLAS_STAGE };
+      const GRAPH_STAGE = { width: 4600, height: 3600 };
+      const REGION_STAGE = { width: 4400, height: 3300 };
+      let currentStage = { ...REGION_STAGE };
       const paperById = new Map(data.papers.map((paper) => [paper.id, paper]));
       const routesById = new Map(data.routeNodes.map((route) => [route.id, route]));
       const overlapLensById = new Map((data.overlapLenses || []).map((lens) => [lens.id, lens]));
-      const defaultLensId = overlapLensById.has("method-families") ? "method-families" : (data.overlapLenses?.[0]?.id || "");
+      const defaultLensId = overlapLensById.has("project-routes") ? "project-routes" : (data.overlapLenses?.[0]?.id || "");
       const minYear = Math.min(...data.papers.map((paper) => Number.parseInt(paper.year, 10)).filter(Number.isFinite));
       const maxYear = Math.max(...data.papers.map((paper) => Number.parseInt(paper.year, 10)).filter(Number.isFinite));
       const pathItems = [
@@ -1306,8 +1409,8 @@
         search: "",
         showRelations: true,
         showBackground: false,
-        detailMode: "paper",
-        selectedPaperId: "QRE-002",
+        detailMode: null,
+        selectedPaperId: null,
         selectedGroupId: null,
         selectedOverlapId: null,
         zoom: 0.63,
@@ -1334,6 +1437,52 @@
         QLSA: "route-qlsa",
         PRIM: "route-prim",
         SURV: "route-surv"
+      };
+
+      const regionPalette = [
+        { color: "#0f766e", fill: "rgba(15, 118, 110, 0.18)" },
+        { color: "#dc2626", fill: "rgba(220, 38, 38, 0.14)" },
+        { color: "#7c3aed", fill: "rgba(124, 58, 237, 0.15)" },
+        { color: "#2563eb", fill: "rgba(37, 99, 235, 0.14)" },
+        { color: "#ca8a04", fill: "rgba(202, 138, 4, 0.16)" },
+        { color: "#0891b2", fill: "rgba(8, 145, 178, 0.15)" },
+        { color: "#be185d", fill: "rgba(190, 24, 93, 0.14)" },
+        { color: "#64748b", fill: "rgba(100, 116, 139, 0.16)" }
+      ];
+
+      // Default region geometry keeps route-setting papers such as QRE-002, QRE-004,
+      // QRE-003, IO-004, IO-005, CAR-001, CAR-011, and QLSA-001 near the main gates.
+      const lensRegionLayouts = {
+        "project-routes": {
+          ftqc: { cx: 760, cy: 660, rx: 560, ry: 420, labelX: 390, labelY: 290, color: "#9a3412", fill: "rgba(154, 52, 18, 0.14)" },
+          "lbm-route": { cx: 1040, cy: 1080, rx: 660, ry: 520, labelX: 500, labelY: 1180, color: "#d97706", fill: "rgba(217, 119, 6, 0.17)" },
+          nonlinear: { cx: 1710, cy: 1040, rx: 660, ry: 520, labelX: 1600, labelY: 1230, color: "#7c3aed", fill: "rgba(124, 58, 237, 0.15)" },
+          pressure: { cx: 2310, cy: 840, rx: 550, ry: 430, labelX: 2380, labelY: 620, color: "#2563eb", fill: "rgba(37, 99, 235, 0.14)" },
+          "encoding-io": { cx: 1510, cy: 520, rx: 700, ry: 410, labelX: 1280, labelY: 250, color: "#0f766e", fill: "rgba(15, 118, 110, 0.18)" },
+          "near-term": { cx: 850, cy: 1600, rx: 560, ry: 360, labelX: 460, labelY: 1700, color: "#ca8a04", fill: "rgba(202, 138, 4, 0.16)" },
+          "resource-tools": { cx: 1870, cy: 1620, rx: 650, ry: 380, labelX: 1760, labelY: 1720, color: "#be185d", fill: "rgba(190, 24, 93, 0.14)" },
+          outside: { cx: 2960, cy: 1760, rx: 340, ry: 250, labelX: 2760, labelY: 1720, color: "#64748b", fill: "rgba(100, 116, 139, 0.13)" }
+        },
+        "method-families": {
+          lbm: { cx: 900, cy: 850, rx: 650, ry: 500, labelX: 450, labelY: 520, color: "#d97706", fill: "rgba(217, 119, 6, 0.17)" },
+          carleman: { cx: 1510, cy: 960, rx: 610, ry: 500, labelX: 1370, labelY: 1260, color: "#7c3aed", fill: "rgba(124, 58, 237, 0.15)" },
+          schrodinger: { cx: 1880, cy: 690, rx: 500, ry: 360, labelX: 1940, labelY: 430, color: "#0891b2", fill: "rgba(8, 145, 178, 0.15)" },
+          qlsa: { cx: 2360, cy: 890, rx: 520, ry: 390, labelX: 2430, labelY: 760, color: "#2563eb", fill: "rgba(37, 99, 235, 0.14)" },
+          "stochastic-noise": { cx: 1150, cy: 1540, rx: 520, ry: 340, labelX: 740, labelY: 1640, color: "#ca8a04", fill: "rgba(202, 138, 4, 0.16)" },
+          "qml-surrogate": { cx: 1600, cy: 1650, rx: 500, ry: 330, labelX: 1450, labelY: 1800, color: "#be185d", fill: "rgba(190, 24, 93, 0.14)" },
+          primitives: { cx: 2100, cy: 1540, rx: 620, ry: 390, labelX: 2060, labelY: 1680, color: "#0f766e", fill: "rgba(15, 118, 110, 0.17)" },
+          outside: { cx: 2960, cy: 1760, rx: 340, ry: 250, labelX: 2760, labelY: 1720, color: "#64748b", fill: "rgba(100, 116, 139, 0.13)" }
+        },
+        "reading-decisions": {
+          "read-first": { cx: 840, cy: 650, rx: 520, ry: 360, labelX: 500, labelY: 400, color: "#dc2626", fill: "rgba(220, 38, 38, 0.14)" },
+          "read-with": { cx: 1320, cy: 770, rx: 500, ry: 360, labelX: 1180, labelY: 490, color: "#d97706", fill: "rgba(217, 119, 6, 0.15)" },
+          build: { cx: 1800, cy: 980, rx: 640, ry: 460, labelX: 1760, labelY: 1190, color: "#0f766e", fill: "rgba(15, 118, 110, 0.17)" },
+          warning: { cx: 2320, cy: 760, rx: 500, ry: 350, labelX: 2390, labelY: 500, color: "#9a3412", fill: "rgba(154, 52, 18, 0.14)" },
+          reference: { cx: 1030, cy: 1500, rx: 550, ry: 350, labelX: 620, labelY: 1600, color: "#64748b", fill: "rgba(100, 116, 139, 0.16)" },
+          covered: { cx: 1580, cy: 1580, rx: 500, ry: 330, labelX: 1460, labelY: 1720, color: "#475569", fill: "rgba(71, 85, 105, 0.14)" },
+          watch: { cx: 2130, cy: 1510, rx: 520, ry: 340, labelX: 2130, labelY: 1650, color: "#7c3aed", fill: "rgba(124, 58, 237, 0.14)" },
+          outside: { cx: 2960, cy: 1760, rx: 340, ry: 250, labelX: 2760, labelY: 1720, color: "#64748b", fill: "rgba(100, 116, 139, 0.13)" }
+        }
       };
 
       const paperPositions = new Map();
@@ -1397,162 +1546,262 @@
       }
 
       function computeRouteLayout() {
-        currentStage = { ...ROUTE_STAGE };
-        Object.entries(groupLayouts).forEach(([id, layout]) => {
-          routePositions.set(id, {
-            x: layout.x,
-            y: layout.y,
-            w: layout.w,
-            h: layout.h,
-            cx: layout.x + layout.w / 2,
-            cy: layout.y + 42
+        currentStage = { ...GRAPH_STAGE };
+        const lens = currentLens();
+        const layoutBySet = regionLayoutsForLens(lens, GRAPH_STAGE);
+        const fallback = { x: GRAPH_STAGE.width / 2, y: GRAPH_STAGE.height / 2 };
+        const cardW = 174;
+        const cardH = 118;
+        const nodes = data.papers.map((paper, index) => {
+          const memberships = paperMembershipIds(paper, lens);
+          paperOverlapSets.set(paper.id, memberships);
+          paperOverlapZone.set(paper.id, memberships[0] || "outside");
+          const anchor = averageRegionAnchor(memberships, layoutBySet, fallback);
+          const angle = hashFloat(paper.id, "graph-angle") * Math.PI * 2;
+          const radius = 130 + (index % 9) * 28 + hashFloat(paper.id, "graph-radius") * 120;
+          return {
+            id: paper.id,
+            paper,
+            memberships,
+            x: anchor.x + Math.cos(angle) * radius,
+            y: anchor.y + Math.sin(angle) * radius,
+            vx: 0,
+            vy: 0
+          };
+        });
+        const nodeById = new Map(nodes.map((node) => [node.id, node]));
+        const relationLinks = relationEdgesForLayout()
+          .map((edge) => ({ ...edge, source: nodeById.get(edge.sourceId), target: nodeById.get(edge.targetId) }))
+          .filter((edge) => edge.source && edge.target);
+
+        for (let tick = 0; tick < 220; tick += 1) {
+          nodes.forEach((node) => {
+            const anchor = averageRegionAnchor(node.memberships, layoutBySet, fallback);
+            node.vx += (anchor.x - node.x) * 0.018;
+            node.vy += (anchor.y - node.y) * 0.018;
+          });
+
+          relationLinks.forEach((edge) => {
+            const dx = edge.target.x - edge.source.x;
+            const dy = edge.target.y - edge.source.y;
+            const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+            const desired = edge.type === "coverage" ? 330 : 380;
+            const force = (distance - desired) * 0.018;
+            const fx = (dx / distance) * force;
+            const fy = (dy / distance) * force;
+            edge.source.vx += fx;
+            edge.source.vy += fy;
+            edge.target.vx -= fx;
+            edge.target.vy -= fy;
+          });
+
+          for (let i = 0; i < nodes.length; i += 1) {
+            for (let j = i + 1; j < nodes.length; j += 1) {
+              const a = nodes[i];
+              const b = nodes[j];
+              const dx = a.x - b.x || 1;
+              const dy = a.y - b.y || 1;
+              const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+              const minDistance = 190;
+              if (distance < minDistance) {
+                const push = (minDistance - distance) * 0.018;
+                const fx = (dx / distance) * push;
+                const fy = (dy / distance) * push;
+                a.vx += fx;
+                a.vy += fy;
+                b.vx -= fx;
+                b.vy -= fy;
+              }
+            }
+          }
+
+          nodes.forEach((node) => {
+            node.vx *= 0.72;
+            node.vy *= 0.72;
+            node.x = clamp(node.x + node.vx, 80, GRAPH_STAGE.width - cardW - 80);
+            node.y = clamp(node.y + node.vy, 90, GRAPH_STAGE.height - cardH - 90);
+          });
+        }
+
+        nodes.forEach((node) => {
+          paperPositions.set(node.id, {
+            x: node.x,
+            y: node.y,
+            w: cardW,
+            h: cardH,
+            cx: node.x + cardW / 2,
+            cy: node.y + cardH / 2
           });
         });
-
-        const papersByGroup = new Map(Object.keys(groupLayouts).map((id) => [id, []]));
-        data.papers.forEach((paper) => {
-          const group = primaryGroupForPaper(paper);
-          papersByGroup.get(group).push(paper);
-        });
-
-        const cardW = 232;
-        const cardH = 150;
-        const gapX = 18;
-        const gapY = 18;
-        papersByGroup.forEach((papers, groupId) => {
-          const layout = groupLayouts[groupId];
-          papers.forEach((paper, index) => {
-            const col = index % layout.cols;
-            const row = Math.floor(index / layout.cols);
-            const x = layout.x + 18 + col * (cardW + gapX);
-            const y = layout.y + 166 + row * (cardH + gapY);
-            paperPositions.set(paper.id, {
-              x,
-              y,
-              w: cardW,
-              h: cardH,
-              cx: x + cardW / 2,
-              cy: y + cardH / 2
-            });
-          });
+        relaxPositions(nodes.map((node) => node.id), cardW, cardH, 70, {
+          minX: 60,
+          minY: 70,
+          maxX: GRAPH_STAGE.width - cardW - 60,
+          maxY: GRAPH_STAGE.height - cardH - 70
         });
       }
 
       function computeOverlapLayout() {
         const lens = currentLens();
         const zones = buildOverlapZones(lens);
-        const stageW = ATLAS_STAGE.width;
-        const marginX = 58;
-        const marginY = 70;
-        const zoneGap = 24;
-        const zoneW = 820;
+        const layoutBySet = regionLayoutsForLens(lens, REGION_STAGE);
         const cardW = 174;
         const cardH = 118;
-        const cardGap = 12;
-        const cardCols = 4;
-        const headerH = 132;
-        let y = marginY;
+        const paperIds = [];
 
-        const placeRows = (rows) => {
-          rows.forEach((row) => {
-            let x = marginX;
-            let rowH = 0;
-            row.forEach((zone) => {
-              const paperRows = Math.ceil(zone.papers.length / cardCols);
-              const zoneH = Math.max(250, headerH + Math.max(1, paperRows) * (cardH + cardGap) + 22);
-              zone.position = { x, y, w: zoneW, h: zoneH, cx: x + zoneW / 2, cy: y + 42 };
-              overlapPositions.set(zone.id, zone.position);
-              overlapZoneById.set(zone.id, zone);
-              zone.papers.forEach((paper, index) => {
-                const col = index % cardCols;
-                const rowIndex = Math.floor(index / cardCols);
-                const paperX = x + 16 + col * (cardW + cardGap);
-                const paperY = y + headerH + rowIndex * (cardH + cardGap);
-                paperPositions.set(paper.id, {
-                  x: paperX,
-                  y: paperY,
-                  w: cardW,
-                  h: cardH,
-                  cx: paperX + cardW / 2,
-                  cy: paperY + cardH / 2
-                });
-              });
-              x += zoneW + zoneGap;
-              rowH = Math.max(rowH, zoneH);
+        zones.forEach((zone) => {
+          const layout = layoutBySet.get(zone.id);
+          if (!layout) return;
+          zone.regionLayout = layout;
+          const position = {
+            x: layout.labelX,
+            y: layout.labelY,
+            w: 276,
+            h: 48,
+            cx: layout.cx,
+            cy: layout.cy
+          };
+          overlapPositions.set(zone.id, position);
+          overlapZoneById.set(zone.id, zone);
+        });
+
+        data.papers.forEach((paper) => {
+          const matches = paperMembershipIds(paper, lens);
+          paperOverlapSets.set(paper.id, matches);
+          paperOverlapZone.set(paper.id, matches[0] || "outside");
+          if (matches.length) {
+            matches.forEach((id) => {
+              const zone = overlapZoneById.get(id);
+              if (zone) zone.papers.push(paper);
             });
-            y += rowH + zoneGap;
-          });
-        };
+          } else {
+            const outside = overlapZoneById.get("outside");
+            if (outside) outside.papers.push(paper);
+          }
 
-        placeRows(chunkZones(zones.filter((zone) => zone.kind === "single"), 4));
-        placeRows(chunkZones(zones.filter((zone) => zone.kind === "overlap"), 4));
-        placeRows(chunkZones(zones.filter((zone) => zone.kind === "deep" || zone.kind === "outside"), 4));
-        currentStage = { width: stageW, height: Math.max(ATLAS_STAGE.height, y + 80) };
+          const anchor = averageRegionAnchor(matches, layoutBySet, layoutBySet.get("outside"));
+          const jitter = Math.max(90, 230 - matches.length * 26);
+          const angle = hashFloat(paper.id, "region-angle") * Math.PI * 2;
+          const radius = hashFloat(paper.id, "region-radius") * jitter;
+          const x = anchor.x + Math.cos(angle) * radius - cardW / 2;
+          const y = anchor.y + Math.sin(angle) * radius - cardH / 2;
+          paperPositions.set(paper.id, {
+            x,
+            y,
+            w: cardW,
+            h: cardH,
+            cx: x + cardW / 2,
+            cy: y + cardH / 2
+          });
+          paperIds.push(paper.id);
+        });
+
+        relaxPositions(paperIds, cardW, cardH, 130, {
+          minX: 60,
+          minY: 70,
+          maxX: REGION_STAGE.width - cardW - 60,
+          maxY: REGION_STAGE.height - cardH - 70
+        });
+
+        currentStage = { ...REGION_STAGE };
       }
 
-      function chunkZones(zones, size) {
-        const rows = [];
-        for (let index = 0; index < zones.length; index += size) {
-          rows.push(zones.slice(index, index + size));
-        }
-        return rows;
+      function regionLayoutsForLens(lens, stage) {
+        const custom = lensRegionLayouts[lens.id] || {};
+        const layouts = new Map();
+        const sets = lens.sets || [];
+        const center = { x: stage.width / 2, y: stage.height / 2 };
+        sets.forEach((set, index) => {
+          const palette = regionPalette[index % regionPalette.length];
+          const angle = (index / Math.max(1, sets.length)) * Math.PI * 2 - Math.PI / 2;
+          const fallback = {
+            cx: center.x + Math.cos(angle) * 680,
+            cy: center.y + Math.sin(angle) * 520,
+            rx: 520,
+            ry: 380,
+            labelX: center.x + Math.cos(angle) * 760 - 160,
+            labelY: center.y + Math.sin(angle) * 570 - 60,
+            color: palette.color,
+            fill: palette.fill
+          };
+          const layout = custom[set.id]
+            ? scaleLayoutToStage({ ...fallback, ...custom[set.id] }, stage)
+            : fallback;
+          layouts.set(set.id, layout);
+        });
+        const outside = {
+          cx: stage.width - 440,
+          cy: stage.height - 400,
+          rx: 340,
+          ry: 250,
+          labelX: stage.width - 640,
+          labelY: stage.height - 460,
+          color: "#64748b",
+          fill: "rgba(100, 116, 139, 0.13)",
+          ...(custom.outside || {})
+        };
+        layouts.set("outside", custom.outside ? scaleLayoutToStage(outside, stage) : outside);
+        return layouts;
+      }
+
+      function scaleLayoutToStage(layout, stage) {
+        const scaleX = stage.width / 3400;
+        const scaleY = stage.height / 2500;
+        const radiusScale = Math.min(scaleX, scaleY) * 1.04;
+        return {
+          ...layout,
+          cx: layout.cx * scaleX,
+          cy: layout.cy * scaleY,
+          rx: layout.rx * radiusScale,
+          ry: layout.ry * radiusScale,
+          labelX: layout.labelX * scaleX,
+          labelY: layout.labelY * scaleY
+        };
+      }
+
+      function paperMembershipIds(paper, lens) {
+        return (lens.sets || [])
+          .filter((set) => paperMatchesOverlapSet(paper, set))
+          .map((set) => set.id);
+      }
+
+      function averageRegionAnchor(matches, layoutBySet, fallback) {
+        const valid = matches.map((id) => layoutBySet.get(id)).filter(Boolean);
+        if (!valid.length) return fallback || { x: REGION_STAGE.width / 2, y: REGION_STAGE.height / 2 };
+        return {
+          x: valid.reduce((sum, layout) => sum + layout.cx, 0) / valid.length,
+          y: valid.reduce((sum, layout) => sum + layout.cy, 0) / valid.length
+        };
       }
 
       function currentLens() {
-        return overlapLensById.get(state.activeLens) || data.overlapLenses?.[0] || { sets: [], label: "Overlap Lens" };
+        return overlapLensById.get(state.activeLens) || data.overlapLenses?.[0] || { sets: [], label: "Region Lens" };
       }
 
       function buildOverlapZones(lens) {
-        const setOrder = new Map((lens.sets || []).map((set, index) => [set.id, index]));
-        const zones = new Map();
-        const ensureZone = (key, setIds, kind) => {
-          if (zones.has(key)) return zones.get(key);
-          const labels = setIds.map((id) => lens.sets.find((set) => set.id === id)?.label || id);
-          const note = findOverlapNote(lens.id, setIds);
-          const zone = {
-            id: key,
-            key,
-            lensId: lens.id,
-            setIds,
-            kind,
-            note,
-            label: zoneLabel(labels, kind),
-            description: zoneDescription(lens, setIds, kind, note),
-            papers: []
-          };
-          zones.set(key, zone);
-          return zone;
-        };
-
-        (lens.sets || []).forEach((set) => ensureZone(set.id, [set.id], "single"));
-        ensureZone("deep-overlap", (lens.sets || []).map((set) => set.id), "deep");
-
-        data.papers.forEach((paper) => {
-          const matches = (lens.sets || [])
-            .filter((set) => paperMatchesOverlapSet(paper, set))
-            .map((set) => set.id)
-            .sort((a, b) => (setOrder.get(a) || 0) - (setOrder.get(b) || 0));
-          const key = matches.length === 0
-            ? "outside"
-            : matches.length >= 4
-              ? "deep-overlap"
-              : matches.join("__");
-          const kind = matches.length === 0 ? "outside" : matches.length === 1 ? "single" : matches.length >= 4 ? "deep" : "overlap";
-          const zone = ensureZone(key, matches, kind);
-          zone.papers.push(paper);
-          paperOverlapSets.set(paper.id, matches);
-          paperOverlapZone.set(paper.id, key);
+        const zones = (lens.sets || []).map((set) => ({
+          id: set.id,
+          key: set.id,
+          lensId: lens.id,
+          setIds: [set.id],
+          kind: "region",
+          note: findOverlapNote(lens.id, [set.id]),
+          label: set.label,
+          description: set.description || set.whyItMatters || "",
+          papers: []
+        }));
+        zones.push({
+          id: "outside",
+          key: "outside",
+          lensId: lens.id,
+          setIds: [],
+          kind: "outside",
+          note: null,
+          label: "Outside this lens",
+          description: "Papers that do not match the active region lens. They remain visible so the corpus stays complete.",
+          papers: []
         });
-
-        const order = { single: 0, overlap: 1, deep: 2, outside: 3 };
-        return [...zones.values()]
-          .filter((zone) => zone.kind === "single" || zone.kind === "deep" || zone.papers.length)
-          .sort((a, b) => {
-            const byKind = order[a.kind] - order[b.kind];
-            if (byKind) return byKind;
-            if (a.kind === "single") return (setOrder.get(a.setIds[0]) || 0) - (setOrder.get(b.setIds[0]) || 0);
-            return b.papers.length - a.papers.length || a.label.localeCompare(b.label);
-          });
+        return zones;
       }
 
       function paperMatchesOverlapSet(paper, set) {
@@ -1584,6 +1833,62 @@
         return sets.map((set) => set.whyItMatters || set.description).join(" ");
       }
 
+      function relationEdgesForLayout() {
+        const edges = [];
+        data.papers.forEach((paper) => {
+          paper.coveredBy.forEach((targetId) => {
+            if (paperById.has(targetId)) edges.push({ sourceId: paper.id, targetId, type: "coverage", label: "covered by" });
+          });
+          paper.dependsOn.forEach((targetId) => {
+            if (paperById.has(targetId)) edges.push({ sourceId: paper.id, targetId, type: "dependency", label: "depends on" });
+          });
+          paper.readBefore.forEach((targetId) => {
+            if (paperById.has(targetId)) edges.push({ sourceId: paper.id, targetId, type: "read-before", label: "read before" });
+          });
+        });
+        return edges;
+      }
+
+      function hashFloat(seed, salt) {
+        const value = `${seed}:${salt}`;
+        let hash = 2166136261;
+        for (let index = 0; index < value.length; index += 1) {
+          hash ^= value.charCodeAt(index);
+          hash = Math.imul(hash, 16777619);
+        }
+        return (hash >>> 0) / 4294967295;
+      }
+
+      function relaxPositions(ids, cardW, cardH, iterations, bounds) {
+        const pad = 12;
+        for (let step = 0; step < iterations; step += 1) {
+          for (let i = 0; i < ids.length; i += 1) {
+            const a = paperPositions.get(ids[i]);
+            if (!a) continue;
+            for (let j = i + 1; j < ids.length; j += 1) {
+              const b = paperPositions.get(ids[j]);
+              if (!b) continue;
+              const overlapX = a.x < b.x + b.w + pad && a.x + a.w + pad > b.x;
+              const overlapY = a.y < b.y + b.h + pad && a.y + a.h + pad > b.y;
+              if (!overlapX || !overlapY) continue;
+              const dx = a.cx - b.cx || (hashFloat(ids[i], ids[j]) - 0.5) || 1;
+              const dy = a.cy - b.cy || (hashFloat(ids[j], ids[i]) - 0.5) || 1;
+              const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+              const moveX = (dx / distance) * 4.2;
+              const moveY = (dy / distance) * 4.2;
+              a.x = clamp(a.x + moveX, bounds.minX, bounds.maxX);
+              a.y = clamp(a.y + moveY, bounds.minY, bounds.maxY);
+              b.x = clamp(b.x - moveX, bounds.minX, bounds.maxX);
+              b.y = clamp(b.y - moveY, bounds.minY, bounds.maxY);
+              a.cx = a.x + cardW / 2;
+              a.cy = a.y + cardH / 2;
+              b.cx = b.x + cardW / 2;
+              b.cy = b.y + cardH / 2;
+            }
+          }
+        }
+      }
+
       function syncStageSize() {
         els.stage.style.width = `${currentStage.width}px`;
         els.stage.style.height = `${currentStage.height}px`;
@@ -1593,7 +1898,7 @@
       function renderControls() {
         els.viewOverlapAtlas.classList.toggle("active", state.viewMode === "atlas");
         els.viewRouteMap.classList.toggle("active", state.viewMode === "route");
-        els.overlapLensSection.classList.toggle("control-hidden", state.viewMode !== "atlas");
+        els.overlapLensSection.classList.remove("control-hidden");
         els.atlasLegend.classList.toggle("control-hidden", state.viewMode !== "atlas");
 
         els.overlapLensButtons.innerHTML = "";
@@ -1605,7 +1910,9 @@
           button.innerHTML = `<strong>${escapeHtml(lens.label)}</strong><span>${escapeHtml(lens.description)}</span>`;
           button.addEventListener("click", () => {
             state.activeLens = lens.id;
-            state.detailMode = "paper";
+            state.detailMode = null;
+            state.selectedPaperId = null;
+            state.selectedGroupId = null;
             state.selectedOverlapId = null;
             render();
             fitStage();
@@ -1781,6 +2088,7 @@
 
       function renderNodes() {
         els.nodes.innerHTML = "";
+        els.edges.querySelectorAll(".region-path").forEach((path) => path.remove());
         if (state.viewMode === "atlas") {
           renderOverlapNodes();
           return;
@@ -1789,79 +2097,29 @@
       }
 
       function renderRouteNodes() {
-        data.routeNodes
-          .filter((route) => routePositions.has(route.id))
-          .forEach((route) => {
-            const position = routePositions.get(route.id);
-            const papers = data.papers.filter((paper) => primaryGroupForPaper(paper) === route.id);
-            const node = document.createElement("div");
-            node.className = "route-node";
-            node.dataset.routeId = route.id;
-            node.setAttribute("role", "button");
-            node.tabIndex = 0;
-            node.style.setProperty("--node-x", `${position.x}px`);
-            node.style.setProperty("--node-y", `${position.y}px`);
-            node.style.setProperty("--node-w", `${position.w}px`);
-            node.style.setProperty("--node-h", `${position.h}px`);
-            node.innerHTML = `
-              <div class="route-label">${escapeHtml(route.label)}</div>
-              <div class="route-meta">${papers.length} papers</div>
-              <div class="route-body">
-                <div>${escapeHtml(route.description || "")}</div>
-                <div><strong>Why:</strong> ${escapeHtml(route.whyItMatters || "")}</div>
-                <div class="route-keyline"><strong>Start:</strong> ${escapeHtml(routeKeyline(route))}</div>
-              </div>
-            `;
-            node.addEventListener("pointerdown", (event) => event.stopPropagation());
-            node.addEventListener("click", (event) => {
-              event.stopPropagation();
-              selectGroup(route.id);
-            });
-            node.addEventListener("keydown", (event) => {
-              if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                selectGroup(route.id);
-              }
-            });
-            els.nodes.appendChild(node);
-
-            const trigger = document.createElement("button");
-            trigger.type = "button";
-            trigger.className = "route-node-trigger";
-            trigger.dataset.routeTrigger = route.id;
-            trigger.setAttribute("aria-label", `Open route group ${route.label}`);
-            trigger.style.setProperty("--node-x", `${position.x}px`);
-            trigger.style.setProperty("--node-y", `${position.y}px`);
-            trigger.style.setProperty("--node-w", `${position.w}px`);
-            trigger.addEventListener("pointerdown", (event) => event.stopPropagation());
-            trigger.addEventListener("mouseenter", () => node.classList.add("trigger-hover"));
-            trigger.addEventListener("mouseleave", () => node.classList.remove("trigger-hover"));
-            trigger.addEventListener("focus", () => node.classList.add("trigger-hover"));
-            trigger.addEventListener("blur", () => node.classList.remove("trigger-hover"));
-            trigger.addEventListener("click", (event) => {
-              event.stopPropagation();
-              selectGroup(route.id);
-            });
-            els.nodes.appendChild(trigger);
-          });
-
         data.papers.forEach((paper) => {
           const position = paperPositions.get(paper.id);
+          if (!position) return;
+          const year = yearGradient(paper.year);
           const node = document.createElement("button");
           node.type = "button";
-          node.className = "paper-node";
+          node.className = `paper-node atlas-paper-node graph-paper-node ${statusClass(paper.readingStatus)}`;
           node.dataset.paperId = paper.id;
           node.style.setProperty("--node-x", `${position.x}px`);
           node.style.setProperty("--node-y", `${position.y}px`);
+          node.style.setProperty("--status-fill", statusFill(paper.readingStatus));
+          node.style.setProperty("--year-a", year.a);
+          node.style.setProperty("--year-b", year.b);
+          const lensLabels = overlapSetLabels(paper).slice(0, 3);
           node.innerHTML = `
             <span class="node-id-row">
-              <span class="node-id">${escapeHtml(`${paper.id} / ${paper.alias}`)}</span>
+              <span class="node-id">${escapeHtml(paper.id)}</span>
               <span class="node-badge ${statusClass(paper.readingStatus)}">${escapeHtml(paper.readingStatus)}</span>
             </span>
             <span class="node-title">${escapeHtml(`${paper.author} ${paper.year}`)}</span>
             <span class="node-capsule">${escapeHtml(paper.capsule)}</span>
             <span class="node-role">${escapeHtml(shortRole(paper.routeRole))}</span>
-            <span class="node-tags">${cardTags(paper).map((tag) => `<span class="node-tag">${escapeHtml(tag)}</span>`).join("")}</span>
+            <span class="node-tags">${lensLabels.map((label) => `<span class="node-tag">${escapeHtml(label)}</span>`).join("")}</span>
             <span class="node-relation">${escapeHtml(relationHint(paper))}</span>
           `;
           node.title = `${paper.id} ${paper.title}`;
@@ -1874,10 +2132,60 @@
         });
       }
 
+      function renderRegionShapes() {
+        els.edges.querySelectorAll(".region-path").forEach((path) => path.remove());
+        if (state.viewMode !== "atlas") return;
+        overlapZoneById.forEach((zone) => {
+          const layout = zone.regionLayout;
+          if (!layout) return;
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          path.setAttribute("d", regionBlobPath(layout, zone.id));
+          path.setAttribute("class", "region-path");
+          path.dataset.regionId = zone.id;
+          path.style.setProperty("--region-color", layout.color);
+          path.style.setProperty("--region-fill", layout.fill);
+          els.edges.appendChild(path);
+        });
+      }
+
+      function regionBlobPath(layout, seed) {
+        const points = [];
+        const count = 18;
+        const base = hashFloat(seed, "blob") * Math.PI * 2;
+        for (let index = 0; index < count; index += 1) {
+          const angle = (index / count) * Math.PI * 2;
+          const wobble = 1 +
+            Math.sin(angle * 3 + base) * 0.07 +
+            Math.cos(angle * 5 - base) * 0.045;
+          const skew = Math.sin(angle + base) * layout.rx * 0.08;
+          points.push([
+            layout.cx + Math.cos(angle) * layout.rx * wobble + skew,
+            layout.cy + Math.sin(angle) * layout.ry * wobble
+          ]);
+        }
+        return smoothClosedPath(points);
+      }
+
+      function smoothClosedPath(points) {
+        if (!points.length) return "";
+        const midpoint = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+        const start = midpoint(points[points.length - 1], points[0]);
+        const parts = [`M ${start[0].toFixed(1)} ${start[1].toFixed(1)}`];
+        points.forEach((point, index) => {
+          const next = points[(index + 1) % points.length];
+          const mid = midpoint(point, next);
+          parts.push(`Q ${point[0].toFixed(1)} ${point[1].toFixed(1)} ${mid[0].toFixed(1)} ${mid[1].toFixed(1)}`);
+        });
+        parts.push("Z");
+        return parts.join(" ");
+      }
+
       function renderOverlapNodes() {
+        renderRegionShapes();
         overlapZoneById.forEach((zone) => {
           const position = overlapPositions.get(zone.id);
           if (!position) return;
+          const layout = zone.regionLayout || {};
           const node = document.createElement("div");
           node.className = `overlap-zone ${zone.kind}`;
           node.dataset.overlapZoneId = zone.id;
@@ -1887,6 +2195,9 @@
           node.style.setProperty("--zone-y", `${position.y}px`);
           node.style.setProperty("--zone-w", `${position.w}px`);
           node.style.setProperty("--zone-h", `${position.h}px`);
+          node.style.setProperty("--zone-color", layout.color || "#64748b");
+          node.style.setProperty("--zone-fill", "rgba(255, 255, 255, 0.72)");
+          node.style.setProperty("--zone-label", layout.color || "#223653");
           node.innerHTML = `
             <div class="overlap-label">${escapeHtml(zone.label)}</div>
             <div class="overlap-meta">${zone.papers.length} papers</div>
@@ -1908,24 +2219,8 @@
           });
           els.nodes.appendChild(node);
 
-          const trigger = document.createElement("button");
-          trigger.type = "button";
-          trigger.className = "overlap-zone-trigger";
-          trigger.dataset.overlapZoneTrigger = zone.id;
-          trigger.setAttribute("aria-label", `Open overlap zone ${zone.label}`);
-          trigger.style.setProperty("--zone-x", `${position.x}px`);
-          trigger.style.setProperty("--zone-y", `${position.y}px`);
-          trigger.style.setProperty("--zone-w", `${position.w}px`);
-          trigger.addEventListener("pointerdown", (event) => event.stopPropagation());
-          trigger.addEventListener("mouseenter", () => node.classList.add("trigger-hover"));
-          trigger.addEventListener("mouseleave", () => node.classList.remove("trigger-hover"));
-          trigger.addEventListener("focus", () => node.classList.add("trigger-hover"));
-          trigger.addEventListener("blur", () => node.classList.remove("trigger-hover"));
-          trigger.addEventListener("click", (event) => {
-            event.stopPropagation();
-            selectOverlap(zone.id);
-          });
-          els.nodes.appendChild(trigger);
+          node.addEventListener("mouseenter", () => node.classList.add("trigger-hover"));
+          node.addEventListener("mouseleave", () => node.classList.remove("trigger-hover"));
         });
 
         data.papers.forEach((paper) => {
@@ -1964,11 +2259,7 @@
 
       function computeEdges() {
         edgesState.length = 0;
-        data.papers.forEach((paper) => {
-          paper.coveredBy.forEach((targetId) => addEdge(paper.id, targetId, "coverage", "covered by"));
-          paper.dependsOn.forEach((targetId) => addEdge(paper.id, targetId, "dependency", "depends on"));
-          paper.readBefore.forEach((targetId) => addEdge(paper.id, targetId, "read-before", "read before"));
-        });
+        relationEdgesForLayout().forEach((edge) => addEdge(edge.sourceId, edge.targetId, edge.type, edge.label));
       }
 
       function addEdge(sourceId, targetId, type, label) {
@@ -1978,7 +2269,6 @@
 
       function renderEdges() {
         els.edges.querySelectorAll(".edge").forEach((edge) => edge.remove());
-        if (state.viewMode !== "route") return;
         const activePath = pathById.get(state.activePath);
         if (activePath) {
           activePath.papers.slice(0, -1).forEach((sourceId, index) => {
@@ -2011,7 +2301,7 @@
 
       function paperMatchesFilters(paper) {
         const activePath = pathById.get(state.activePath);
-        const pathOk = state.viewMode !== "route" || !activePath || activePath.papers.includes(paper.id);
+        const pathOk = !activePath || activePath.papers.includes(paper.id);
         const query = state.search.trim().toLowerCase();
         const haystack = [
           paper.id,
@@ -2042,14 +2332,13 @@
           state.selectedTags.size ||
           state.selectedStatuses.size ||
           state.selectedRoutes.size ||
-          (state.viewMode === "route" && activePath)
+          activePath
         );
         let bright = 0;
 
         data.papers.forEach((paper) => {
           const matches = paperMatchesFilters(paper);
-          const backgroundDim = state.viewMode === "route" &&
-            !state.showBackground &&
+          const backgroundDim = !state.showBackground &&
             !activePath &&
             !state.selectedStatuses.size &&
             backgroundStatuses.has(paper.readingStatus);
@@ -2065,34 +2354,28 @@
           if (!dim && !hidden) bright += 1;
         });
 
-        if (state.viewMode === "route") {
-          data.routeNodes.forEach((route) => {
-            const papers = data.papers.filter((paper) => paper.routeIds.includes(route.id) || primaryGroupForPaper(paper) === route.id);
-            const anyBright = papers.some((paper) => visibleState.get(paper.id) && !visibleState.get(paper.id).dim);
-            const anyPath = papers.some((paper) => activePathSet.has(paper.id));
-            const selected = state.selectedRoutes.has(route.id);
-            const detailSelected = state.detailMode === "group" && state.selectedGroupId === route.id;
-            const node = els.nodes.querySelector(`[data-route-id="${cssEscape(route.id)}"]`);
-            if (node) {
-              node.classList.toggle("active", anyBright || anyPath || selected);
-              node.classList.toggle("selected", detailSelected);
-              node.classList.toggle("dim", filterActive && !(anyBright || anyPath || selected || detailSelected));
-            }
-          });
-        } else {
-          overlapZoneById.forEach((zone) => {
-            const anyBright = zone.papers.some((paper) => visibleState.get(paper.id) && !visibleState.get(paper.id).dim);
-            const detailSelected = state.detailMode === "overlap" && state.selectedOverlapId === zone.id;
-            const node = els.nodes.querySelector(`[data-overlap-zone-id="${cssEscape(zone.id)}"]`);
-            if (node) {
-              node.classList.toggle("active", anyBright);
-              node.classList.toggle("selected", detailSelected);
-              node.classList.toggle("dim", filterActive && !(anyBright || detailSelected));
-            }
-          });
-        }
+        overlapZoneById.forEach((zone) => {
+          const anyBright = zone.papers.some((paper) => visibleState.get(paper.id) && !visibleState.get(paper.id).dim);
+          const anyPath = zone.papers.some((paper) => activePathSet.has(paper.id));
+          const detailSelected = state.detailMode === "overlap" && state.selectedOverlapId === zone.id;
+          const node = els.nodes.querySelector(`[data-overlap-zone-id="${cssEscape(zone.id)}"]`);
+          if (node) {
+            node.classList.toggle("active", anyBright || anyPath);
+            node.classList.toggle("selected", detailSelected);
+            node.classList.toggle("dim", filterActive && !(anyBright || anyPath || detailSelected));
+          }
+          const path = els.edges.querySelector(`[data-region-id="${cssEscape(zone.id)}"]`);
+          if (path) {
+            path.classList.toggle("active", anyBright || anyPath);
+            path.classList.toggle("selected", detailSelected);
+            path.classList.toggle("dim", filterActive && !(anyBright || anyPath || detailSelected));
+          }
+        });
 
         const selectedGroupPapers = state.detailMode === "group" ? new Set(groupPaperIds(state.selectedGroupId)) : new Set();
+        const selectedOverlapPapers = state.detailMode === "overlap" && overlapZoneById.has(state.selectedOverlapId)
+          ? new Set(overlapZoneById.get(state.selectedOverlapId).papers.map((paper) => paper.id))
+          : new Set();
         els.edges.querySelectorAll(".edge").forEach((edge) => {
           const source = visibleState.get(edge.dataset.source);
           const target = visibleState.get(edge.dataset.target);
@@ -2101,18 +2384,19 @@
             (edge.dataset.source === state.selectedPaperId || edge.dataset.target === state.selectedPaperId);
           const selectedGroupRelation = state.detailMode === "group" &&
             (selectedGroupPapers.has(edge.dataset.source) || selectedGroupPapers.has(edge.dataset.target));
-          edge.classList.toggle("focused", selectedRelation || selectedGroupRelation);
-          edge.classList.toggle("dim", dim && !(selectedRelation || selectedGroupRelation));
+          const selectedOverlapRelation = selectedOverlapPapers.has(edge.dataset.source) || selectedOverlapPapers.has(edge.dataset.target);
+          edge.classList.toggle("focused", selectedRelation || selectedGroupRelation || selectedOverlapRelation);
+          edge.classList.toggle("dim", dim && !(selectedRelation || selectedGroupRelation || selectedOverlapRelation));
         });
 
         els.paperCount.textContent = String(data.papers.length);
         els.brightCount.textContent = String(bright);
         if (state.viewMode === "atlas") {
           els.pathCount.textContent = String(overlapZoneById.size);
-          els.contextCountLabel.textContent = "zones";
+          els.contextCountLabel.textContent = "regions";
         } else {
           els.pathCount.textContent = String(activePath?.papers.length || data.papers.length);
-          els.contextCountLabel.textContent = activePath ? "in path" : "in view";
+          els.contextCountLabel.textContent = activePath ? "in path" : "in graph";
         }
         els.emptyState.classList.toggle("visible", bright === 0);
       }
@@ -2126,15 +2410,24 @@
           renderGroupDetails(routesById.get(state.selectedGroupId));
           return;
         }
-        renderPaperDetails();
+        if (state.detailMode === "paper" && paperById.has(state.selectedPaperId)) {
+          renderPaperDetails();
+          return;
+        }
+        closeDetails();
       }
 
       function renderPaperDetails() {
-        const paper = paperById.get(state.selectedPaperId) || data.papers[0];
+        const paper = paperById.get(state.selectedPaperId);
+        if (!paper) {
+          closeDetails();
+          return;
+        }
         state.detailMode = "paper";
         state.selectedPaperId = paper.id;
         const relations = relationDetails(paper);
         els.details.innerHTML = `
+          <button class="details-close" type="button" data-close-details>Close</button>
           <h2>Selected Paper</h2>
           <div class="details-title">${escapeHtml(paper.title)}</div>
           <div class="detail-subtitle">
@@ -2186,6 +2479,7 @@
         els.details.querySelectorAll("[data-focus-paper]").forEach((button) => {
           button.addEventListener("click", () => focusPaper(button.dataset.focusPaper));
         });
+        openDetails();
       }
 
       function renderGroupDetails(route) {
@@ -2193,6 +2487,7 @@
         const keyIds = (route.keyPaperIds || []).filter((id) => paperById.has(id));
         const connected = connectedGroupIds(route.id);
         els.details.innerHTML = `
+          <button class="details-close" type="button" data-close-details>Close</button>
           <h2>Selected Group</h2>
           <div class="details-title">${escapeHtml(route.label)}</div>
           <div class="detail-subtitle">
@@ -2240,6 +2535,7 @@
         els.details.querySelectorAll("[data-focus-group]").forEach((button) => {
           button.addEventListener("click", () => focusGroup(button.dataset.focusGroup));
         });
+        openDetails();
       }
 
       function renderOverlapDetails(zone) {
@@ -2251,28 +2547,29 @@
           .slice(0, 8);
         const setLabels = zone.setIds.map((id) => lens.sets.find((set) => set.id === id)?.label || id);
         els.details.innerHTML = `
-          <h2>Selected Overlap</h2>
+          <button class="details-close" type="button" data-close-details>Close</button>
+          <h2>Selected Region</h2>
           <div class="details-title">${escapeHtml(zone.note?.title || zone.label)}</div>
           <div class="detail-subtitle">
             ${escapeHtml(lens.label)} · ${escapeHtml(zone.kind)} · ${zone.papers.length} papers
           </div>
           <div class="badge-row">
-            ${setLabels.map((label) => `<span class="badge">${escapeHtml(label)}</span>`).join("") || `<span class="badge">Outside lens</span>`}
+            ${setLabels.map((label) => `<span class="badge">${escapeHtml(label)}</span>`).join("") || `<span class="badge">Outside this lens</span>`}
           </div>
           <div class="detail-block">
-            <h3>What This Overlap Means</h3>
+            <h3>What This Region Means</h3>
             <p>${escapeHtml(zone.description)}</p>
           </div>
           <div class="detail-block">
             <h3>Why It Matters</h3>
-            <p>${escapeHtml(zone.note?.whyItMatters || "This zone shows papers that share the same active classification pattern, so it is a useful place to look for transferable ideas before building in one direction.")}</p>
+            <p>${escapeHtml(zone.note?.whyItMatters || "This region shows papers that share the active classification, while multi-region papers sit physically between the classifications they connect.")}</p>
           </div>
           <div class="detail-block">
             <h3>Known Warning / Already Tried</h3>
             <p>${escapeHtml(zone.note?.knownWarning || overlapWarningText(warningPapers))}</p>
           </div>
           <div class="detail-block">
-            <h3>Read First In This Overlap</h3>
+            <h3>Read First In This Region</h3>
             <div>${keyIds.map((id) => relationButton(id)).join("") || `<p class="small-note">No papers in this zone yet.</p>`}</div>
           </div>
           <div class="detail-block">
@@ -2290,6 +2587,28 @@
         els.details.querySelectorAll("[data-focus-overlap]").forEach((button) => {
           button.addEventListener("click", () => focusOverlap(button.dataset.focusOverlap));
         });
+        openDetails();
+      }
+
+      function openDetails() {
+        els.details.classList.add("open");
+        els.details.querySelectorAll("[data-close-details]").forEach((button) => {
+          button.addEventListener("click", clearSelection);
+        });
+      }
+
+      function closeDetails() {
+        els.details.classList.remove("open");
+        els.details.innerHTML = "";
+      }
+
+      function clearSelection() {
+        state.detailMode = null;
+        state.selectedPaperId = null;
+        state.selectedGroupId = null;
+        state.selectedOverlapId = null;
+        closeDetails();
+        updateVisibility();
       }
 
       function overlapWarningText(warningPapers) {
@@ -2396,7 +2715,7 @@
 
       function focusOverlap(id) {
         const position = overlapPositions.get(id);
-        if (position) centerOn(position.x + position.w / 2, position.y + position.h / 2);
+        if (position) centerOn(position.cx || position.x + position.w / 2, position.cy || position.y + position.h / 2);
       }
 
       function render() {
@@ -2421,8 +2740,8 @@
         state.tagMode = "any";
         state.showRelations = true;
         state.showBackground = false;
-        state.detailMode = "paper";
-        state.selectedPaperId = "QRE-002";
+        state.detailMode = null;
+        state.selectedPaperId = null;
         state.selectedGroupId = null;
         state.selectedOverlapId = null;
         els.searchInput.value = "";
@@ -2436,14 +2755,48 @@
 
       function fitStage() {
         const viewport = els.viewport.getBoundingClientRect();
-        const stageW = currentStage.width;
-        const stageH = currentStage.height;
-        const scale = Math.min(viewport.width / stageW, viewport.height / stageH) * 0.96;
-        state.zoom = clamp(scale, 0.22, 1);
-        state.panX = Math.max(12, (viewport.width - stageW * state.zoom) / 2);
+        const bounds = contentBounds();
+        const stageW = bounds.right - bounds.left;
+        const stageH = bounds.bottom - bounds.top;
+        const scale = Math.min(viewport.width / stageW, viewport.height / stageH) * 0.92;
+        state.zoom = clamp(scale, 0.12, 1);
+        state.panX = viewport.width / 2 - ((bounds.left + bounds.right) / 2) * state.zoom;
         const topInset = state.viewMode === "atlas" ? 72 : 12;
-        state.panY = Math.max(topInset, (viewport.height - stageH * state.zoom) / 2);
+        state.panY = Math.max(topInset, viewport.height / 2 - ((bounds.top + bounds.bottom) / 2) * state.zoom);
         applyTransform();
+      }
+
+      function contentBounds() {
+        let left = Infinity;
+        let top = Infinity;
+        let right = -Infinity;
+        let bottom = -Infinity;
+        const include = (x1, y1, x2, y2) => {
+          left = Math.min(left, x1);
+          top = Math.min(top, y1);
+          right = Math.max(right, x2);
+          bottom = Math.max(bottom, y2);
+        };
+
+        paperPositions.forEach((position) => {
+          include(position.x, position.y, position.x + position.w, position.y + position.h);
+        });
+        if (state.viewMode === "atlas") {
+          overlapZoneById.forEach((zone) => {
+            const layout = zone.regionLayout;
+            if (layout) include(layout.cx - layout.rx, layout.cy - layout.ry, layout.cx + layout.rx, layout.cy + layout.ry);
+            const label = overlapPositions.get(zone.id);
+            if (label) include(label.x, label.y, label.x + label.w, label.y + label.h);
+          });
+        }
+        if (!Number.isFinite(left)) return { left: 0, top: 0, right: currentStage.width, bottom: currentStage.height };
+        const pad = state.viewMode === "atlas" ? 160 : 220;
+        return {
+          left: Math.max(0, left - pad),
+          top: Math.max(0, top - pad),
+          right: Math.min(currentStage.width, right + pad),
+          bottom: Math.min(currentStage.height, bottom + pad)
+        };
       }
 
       function zoomAt(factor, clientX, clientY) {
@@ -2452,7 +2805,7 @@
         const y = clientY - rect.top;
         const beforeX = (x - state.panX) / state.zoom;
         const beforeY = (y - state.panY) / state.zoom;
-        state.zoom = clamp(state.zoom * factor, 0.28, 1.55);
+        state.zoom = clamp(state.zoom * factor, 0.14, 1.55);
         state.panX = x - beforeX * state.zoom;
         state.panY = y - beforeY * state.zoom;
         applyTransform();
@@ -2466,9 +2819,16 @@
       }
 
       function setupEvents() {
+        const filterPanel = document.querySelector("aside");
+        filterPanel.addEventListener("pointerenter", () => document.body.classList.add("filters-open"));
+        filterPanel.addEventListener("pointerleave", () => document.body.classList.remove("filters-open"));
+        filterPanel.addEventListener("focusin", () => document.body.classList.add("filters-open"));
+        filterPanel.addEventListener("focusout", () => document.body.classList.remove("filters-open"));
+
         els.viewOverlapAtlas.addEventListener("click", () => {
           state.viewMode = "atlas";
-          state.detailMode = "paper";
+          state.detailMode = null;
+          state.selectedPaperId = null;
           state.selectedGroupId = null;
           state.selectedOverlapId = null;
           render();
@@ -2476,7 +2836,8 @@
         });
         els.viewRouteMap.addEventListener("click", () => {
           state.viewMode = "route";
-          state.detailMode = "paper";
+          state.detailMode = null;
+          state.selectedPaperId = null;
           state.selectedGroupId = null;
           state.selectedOverlapId = null;
           render();
@@ -2519,6 +2880,7 @@
         els.viewport.addEventListener("pointerdown", (event) => {
           if (event.button !== 0) return;
           if (event.target.closest(".paper-node, .route-node, .overlap-zone, .canvas-toolbar, button, input, a, summary")) return;
+          clearSelection();
           drag = { x: event.clientX, y: event.clientY, panX: state.panX, panY: state.panY };
           els.viewport.classList.add("dragging");
           els.viewport.setPointerCapture(event.pointerId);
